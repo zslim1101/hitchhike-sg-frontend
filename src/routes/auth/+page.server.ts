@@ -22,16 +22,10 @@ export const actions: Actions = {
     const password = formData.get('password') as string
 
     const { error,data } = await supabase.auth.signInWithPassword({ email, password })
-   
     if (error) {
       console.error(error)
       redirect(303, '/auth/error')
     } else {
-        await supabase.from('dwada').insert({
-            user_id:data.user.id,
-            telegramID:
-
-        })
       redirect(303, '/private')
     }
   },

@@ -8,12 +8,18 @@
 	});
 </script>
 
-<header>
-	<nav>
-		<a href="/">Home</a>
+<header class="bg-gray-800 p-4 text-white">
+	<nav class="flex justify-between items-center">
+		<a href="/private/" class="text-xl font-semibold hover:text-gray-300">Dashboard</a>
+		<a href="/private/trips" class="text-xl font-semibold hover:text-gray-300">Trips</a>
+		<button 
+			class="bg-red-500 px-4 py-2 rounded hover:bg-red-600 transition" 
+			onclick={logout}>
+			Logout
+		</button>
 	</nav>
-	<button onclick={logout}>Logout</button>
 </header>
-<main>
+
+<main class="p-4">
 	{@render children()}
 </main>

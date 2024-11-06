@@ -1558,6 +1558,11 @@ lru-cache@^10.2.0:
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-10.4.3.tgz#410fc8a17b70e598013df257c2446b7f3383f119"
   integrity sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==
 
+lucide-svelte@^0.454.0:
+  version "0.454.0"
+  resolved "https://registry.yarnpkg.com/lucide-svelte/-/lucide-svelte-0.454.0.tgz#5d154c1c05f6caa8dce14589c5d69cf55bc39873"
+  integrity sha512-TgW17HI7M8LeFZ3NpaDp1LwPGBGMVjx/x81TtK+AacEQvmJcqetqeJNeBT18NMEJP9+zi/Wt+Zc8mo44K5Uszw==
+
 magic-string@^0.30.11, magic-string@^0.30.12, magic-string@^0.30.5:
   version "0.30.12"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.30.12.tgz#9eb11c9d072b9bcb4940a5b2c2e1a217e4ee1a60"
