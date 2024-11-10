@@ -69,7 +69,7 @@
 				</form>
 			{:else if tabSet === 1}
 				<!-- Register Form -->
-				<form method="POST" action="?/register" class="space-y-6">
+				<form method="POST" action="?/signup" class="space-y-6">
 					<div class="space-y-2">
 						<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
 						<input
