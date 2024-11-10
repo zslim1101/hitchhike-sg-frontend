@@ -10,8 +10,8 @@
         <div class="container mx-auto flex justify-between items-center">
             <a href="{$page.url.href}" class="text-white text-xl font-bold">Carpool SG</a>
             <div class="space-x-4">
-                <a href="#register" class="text-white">Register</a>
-                <a href="#login" class="text-white">Login</a>
+                <a href="{$page.url.href}auth#register" class="text-white">Register</a>
+                <a href="{$page.url.href}auth#login" class="text-white">Login</a>
             </div>
         </div>
     </nav>
@@ -21,8 +21,8 @@
         <h1 class="text-5xl font-bold">Welcome to Carpool SG</h1>
         <p class="mt-4 text-xl">Connecting commuters for a smarter, greener way to travel</p>
         <div class="mt-8">
-            <a href="{$page.url.href}auth" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg mr-4">Register</a>
-            <a href="{$page.url.href}auth" class="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-lg text-lg">Login</a>
+            <a href="{$page.url.href}auth#register" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg mr-4">Register</a>
+            <a href="{$page.url.href}auth#login" class="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-lg text-lg">Login</a>
         </div>
     </section>
 
@@ -41,7 +41,7 @@
         <div class="container mx-auto text-center">
             <h2 class="text-3xl font-semibold">Join Us Today</h2>
             <p class="mt-4 text-lg">Sign up to start carpooling with fellow commuters.</p>
-            <a href="{$page.url.href}auth" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg mt-8 inline-block">Register Now</a>
+            <a href="{$page.url.href}auth#register" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg mt-8 inline-block">Register Now</a>
         </div>
     </section>
 
@@ -50,7 +50,7 @@
         <div class="container mx-auto text-center">
             <h2 class="text-3xl font-semibold">Already a Member?</h2>
             <p class="mt-4 text-lg">Login to access your carpool details.</p>
-            <a href="{$page.url.href}auth" class="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-lg text-lg mt-8 inline-block">Login</a>
+            <a href="{$page.url.href}auth#login" class="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-lg text-lg mt-8 inline-block">Login</a>
         </div>
     </section>
 

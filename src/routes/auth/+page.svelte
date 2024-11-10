@@ -7,13 +7,17 @@
 	// Function to switch the view based on the hash in URL
 	function checkHash() {
 		isLoginView = window.location.hash === '#login' || window.location.hash === '';
+		if (isLoginView) {
+			tabSet = 0;
+		} else {
+			tabSet = 1;
+		}
 	}
 
 	// Update view on page load and hash change
 	onMount(() => {
 		checkHash();
 		window.addEventListener('hashchange', checkHash);
-
 		// Clean up the event listener
 		return () => window.removeEventListener('hashchange', checkHash);
 	});
@@ -21,7 +25,7 @@
 
 <div class="mx-auto max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg">
 	<h2 class="text-center text-2xl font-semibold text-gray-800">
-		{isLoginView ? 'Login' : 'Register'}
+		{tabSet === 0 ? 'Login' : 'Register'}
 	</h2>
 
 	<TabGroup>
@@ -66,12 +70,11 @@
 			{:else if tabSet === 1}
 				<!-- Register Form -->
 				<form method="POST" action="?/register" class="space-y-6">
-					
-                    <div class="space-y-2">
+					<div class="space-y-2">
 						<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
 						<input
-							name="username"
-							type="text"
+							name="email"
+							type="email"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -86,11 +89,11 @@
 							required
 						/>
 					</div>
-                    
-                    <div class="space-y-2">
-						<label for="name" class="block text-sm font-medium text-gray-700">Username</label>
+
+					<div class="space-y-2">
+						<label for="username" class="block text-sm font-medium text-gray-700">Name</label>
 						<input
-                        name="name"
+							name="username"
 							type="text"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
