@@ -43,6 +43,7 @@
 						<input
 							name="email"
 							type="email"
+                             placeholder="your@email.com"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -53,6 +54,7 @@
 						<input
 							name="password"
 							type="password"
+                            placeholder="Your password"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -75,6 +77,7 @@
 						<input
 							name="email"
 							type="email"
+                             placeholder="your@email.com"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -85,6 +88,7 @@
 						<input
 							name="password"
 							type="password"
+                            placeholder="Super secret password"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -96,16 +100,18 @@
 							name="username"
 							type="text"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="John Sigma"
 							required
 						/>
 					</div>
 
 					<div class="space-y-2">
-						<label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+						<label for="phone" class="block text-sm font-medium text-gray-700">Contact Info</label>
 						<input
 							name="phone"
 							type="tel"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Mobile number / Telegram username"
 							required
 						/>
 					</div>
