@@ -1,8 +1,11 @@
 <script lang="ts">
+	import { RangeSlider } from '@skeletonlabs/skeleton';
+	import { Autocomplete } from '@skeletonlabs/skeleton';
+	import type { AutocompleteOption } from '@skeletonlabs/skeleton';
 	// Form variables
 	let { data } = $props();
 
-	let time: string = $state('');
+	let time: string = $state(Date());
 	let pickupLocation: string = $state('');
 	let destination: string = $state('');
 	let minPassengers: number = $state(2);
@@ -34,10 +37,25 @@
 			alert('Trip created successfully!');
 		}
 	}
+
+	function onFlavorSelection(event: CustomEvent<AutocompleteOption<string>>): void {
+		pickupLocation = event.detail.label;
+	}
+
+	function translateLocations(locations: any[]): AutocompleteOption<string>[] {
+		return locations.map((location) => ({
+			label: location.name,
+			value: location.id.toString(),
+			keywords: location.name.split(' ').join(', '), // Assuming keywords are space-separated words from the name
+			meta: { type: location.location_type.toLowerCase() }
+		}));
+	}
+
+	const locationOptions: AutocompleteOption<string>[] = translateLocations(data.locations);
 </script>
 
-<div class="container mx-auto px-2">
-	<form onsubmit={createTrip} class="max-w-sm rounded-lg bg-white p-6 shadow-md">
+<div class="container mx-auto">
+	<form onsubmit={createTrip} class=" rounded-lg bg-white p-6 shadow-md">
 		<h2 class="mb-2 text-xl font-semibold">Create a trip</h2>
 		<p class="mb-4 text-sm text-gray-500">Enter information about your trip</p>
 
@@ -53,16 +71,20 @@
 		<label for="pickup" class="mb-1 block text-sm font-medium text-gray-700"
 			>Where to pick you up?</label
 		>
-		<select
+		<input
+			class="input"
+			type="search"
+			name="demo"
 			bind:value={pickupLocation}
-			class="mb-4 w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
-		>
-			<option value="">Select location</option>
-			<option value="Location 1">Location 1</option>
-			<option value="Location 2">Location 2</option>
-			<!-- Add more options as needed -->
-		</select>
-
+			placeholder="Search..."
+		/>
+		<div class="card max-h-48 w-full max-w-sm overflow-y-auto p-4" tabindex="-1">
+			<Autocomplete
+				bind:input={pickupLocation}
+				options={locationOptions}
+				on:selection={onFlavorSelection}
+			/>
+		</div>
 		<!-- Destination Select -->
 		<label for="dest" class="mb-1 block text-sm font-medium text-gray-700"
 			>Where do you want to go?</label
@@ -77,31 +99,15 @@
 			<!-- Add more options as needed -->
 		</select>
 
-		<!-- Number of Passengers Slider -->
-		<label for="min" class="mb-1 block text-sm font-medium text-gray-700"
-			>Number of passengers</label
+		<RangeSlider name="range-slider" bind:value={minPassengers} max={25} step={1} min={3}
+			>Minimum Passengers</RangeSlider
 		>
-		<div class="mb-2 flex items-center space-x-4">
-			<span class="text-sm text-gray-700">{minPassengers}</span>
-			<input type="range" min="2" max="4" bind:value={minPassengers} class="w-full" />
-			<span class="text-sm text-gray-700">{maxPassengers}</span>
-		</div>
+		<RangeSlider name="range-slider" bind:value={maxPassengers} max={25} step={1} min={3}
+			>Maximum Passengers</RangeSlider
+		>
 		<p class="mb-4 text-xs text-gray-500">
 			Choose the minimum and maximum amount of users for shared trip
 		</p>
-
-		<!-- Terms Checkbox -->
-		<label class="mb-4 flex items-center text-sm text-gray-700">
-			<input
-				type="checkbox"
-				bind:checked={acceptedTerms}
-				class="mr-3 rounded border-gray-300 focus:ring-2 focus:ring-gray-400"
-			/>
-			<p class="pl-2">I accept the terms</p>
-		</label>
-
-		<!-- Terms Link -->
-		<a href="/terms" class="mb-4 block text-sm text-gray-500 underline">Read our T&Cs</a>
 
 		<!-- Submit Button -->
 		<button

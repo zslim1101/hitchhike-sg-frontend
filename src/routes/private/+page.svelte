@@ -7,9 +7,9 @@
 	<p class="text-lg mb-8">Welcome to your dashboard!</p>
 	
 	<a 
-		href="/private/home" 
+		href="/private/trips" 
 		class="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
 	>
-		Go to Home
+		Go to Trips
 	</a>
 </div>
