@@ -1,1 +1,61 @@
-<h1>Welcome to TO MOBILE LAND</h1>
+<script>
+	import { page } from "$app/stores";
+	import { LucideCopyright } from "lucide-svelte";
+
+</script>
+
+<div class="bg-gray-100 font-sans">
+    <!-- Navbar -->
+    <nav class="bg-blue-500 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{$page.url.href}" class="text-white text-xl font-bold">Carpool SG</a>
+            <div class="space-x-4">
+                <a href="#register" class="text-white">Register</a>
+                <a href="#login" class="text-white">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-blue-700 text-white py-20 text-center">
+        <h1 class="text-5xl font-bold">Welcome to Carpool SG</h1>
+        <p class="mt-4 text-xl">Connecting commuters for a smarter, greener way to travel</p>
+        <div class="mt-8">
+            <a href="{$page.url.href}auth" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg mr-4">Register</a>
+            <a href="{$page.url.href}auth" class="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-lg text-lg">Login</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="py-16 bg-white text-center">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-semibold">About Carpool SG</h2>
+            <p class="mt-4 text-lg max-w-2xl mx-auto">
+                Carpool SG is a platform that connects commuters across Singapore, helping you save on transport costs while reducing your carbon footprint. Join the community and start carpooling today!
+            </p>
+        </div>
+    </section>
+
+    <!-- Register Section -->
+    <section id="register" class="bg-gray-200 py-16">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-semibold">Join Us Today</h2>
+            <p class="mt-4 text-lg">Sign up to start carpooling with fellow commuters.</p>
+            <a href="{$page.url.href}auth" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg mt-8 inline-block">Register Now</a>
+        </div>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login" class="py-16">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-semibold">Already a Member?</h2>
+            <p class="mt-4 text-lg">Login to access your carpool details.</p>
+            <a href="{$page.url.href}auth" class="bg-yellow-500 hover:bg-yellow-600 text-white py-3 px-6 rounded-lg text-lg mt-8 inline-block">Login</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-blue-500 text-white py-6 text-center">
+        <p><LucideCopyright/>2024 Carpool SG. All rights reserved.</p>
+    </footer>
+</div>

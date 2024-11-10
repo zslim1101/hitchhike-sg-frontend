@@ -1,38 +1,122 @@
-<script>
-	let email = '';
-	let password = '';
+<script lang="ts">
+	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
+	import { onMount } from 'svelte';
+
+	let isLoginView = true; // Default view is Login
+	let tabSet: number = 0;
+	// Function to switch the view based on the hash in URL
+	function checkHash() {
+		isLoginView = window.location.hash === '#login' || window.location.hash === '';
+	}
+
+	// Update view on page load and hash change
+	onMount(() => {
+		checkHash();
+		window.addEventListener('hashchange', checkHash);
+
+		// Clean up the event listener
+		return () => window.removeEventListener('hashchange', checkHash);
+	});
 </script>
 
-<form method="POST" action="?/login" class="max-w-md mx-auto bg-white shadow-lg rounded-lg p-8 space-y-6">
-	<h2 class="text-2xl font-semibold text-gray-800 text-center">Login</h2>
+<div class="mx-auto max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg">
+	<h2 class="text-center text-2xl font-semibold text-gray-800">
+		{isLoginView ? 'Login' : 'Register'}
+	</h2>
 
-	<div class="space-y-2">
-		<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-		<input
-			name="email"
-			type="email"
-			class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
-			required
-		/>
-	</div>
+	<TabGroup>
+		<Tab bind:group={tabSet} name="tab1" value={0}>
+			<span>Login</span>
+		</Tab>
+		<Tab bind:group={tabSet} name="tab2" value={1}>Register</Tab>
+		<!-- Tab Panels --->
+		<svelte:fragment slot="panel">
+			{#if tabSet === 0}
+				<!-- Login Form -->
+				<form method="POST" action="?/login" class="space-y-6">
+					<div class="space-y-2">
+						<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+						<input
+							name="email"
+							type="email"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
 
-	<div class="space-y-2">
-		<label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-		<input
-        id="password"
-			name="password"
-			type="password"
-			class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
-			required
-		/>
-	</div>
+					<div class="space-y-2">
+						<label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+						<input
+							name="password"
+							type="password"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
 
-	<div class="flex justify-between items-center space-x-4">
-		<button type="submit" class="w-full py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">
-			Login
-		</button>
-		<button formaction="?/signup" class="w-full py-2 bg-gray-300 text-gray-800 rounded-lg font-medium hover:bg-gray-400">
-			Sign Up
-		</button>
-	</div>
-</form>
+					<div class="flex justify-center">
+						<button
+							type="submit"
+							class="w-full rounded-lg bg-blue-600 py-2 font-medium text-white hover:bg-blue-700"
+						>
+							Login
+						</button>
+					</div>
+				</form>
+			{:else if tabSet === 1}
+				<!-- Register Form -->
+				<form method="POST" action="?/register" class="space-y-6">
+					
+                    <div class="space-y-2">
+						<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+						<input
+							name="username"
+							type="text"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
+
+					<div class="space-y-2">
+						<label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+						<input
+							name="password"
+							type="password"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
+                    
+                    <div class="space-y-2">
+						<label for="name" class="block text-sm font-medium text-gray-700">Username</label>
+						<input
+                        name="name"
+							type="text"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
+
+					<div class="space-y-2">
+						<label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+						<input
+							name="phone"
+							type="tel"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							required
+						/>
+					</div>
+
+					<div class="flex justify-center">
+						<button
+							type="submit"
+							class="w-full rounded-lg bg-green-600 py-2 font-medium text-white hover:bg-green-700"
+						>
+							Register
+						</button>
+					</div>
+				</form>
+			{/if}
+		</svelte:fragment>
+	</TabGroup>
+</div>

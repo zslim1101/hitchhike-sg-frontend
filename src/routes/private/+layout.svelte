@@ -1,10 +1,14 @@
 <script>
+	import { goto } from '$app/navigation';
+
 	let { children, data } = $props();
 	let logout = $derived(async () => {
 		const { error } = await data.supabase.auth.signOut();
 		if (error) {
 			console.error(error);
-		}
+		}else{
+            goto('/')
+        }
 	});
 </script>
 
