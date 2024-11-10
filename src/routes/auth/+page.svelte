@@ -88,30 +88,41 @@
 						<input
 							name="password"
 							type="password"
-                            placeholder="Super secret password"
+                            placeholder="Your password"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
 					</div>
 
 					<div class="space-y-2">
-						<label for="username" class="block text-sm font-medium text-gray-700">Name</label>
+						<label for="name" class="block text-sm font-medium text-gray-700">Name</label>
 						<input
-							name="username"
+							name="name"
 							type="text"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="John Sigma"
+                            placeholder="John Doe"
 							required
 						/>
 					</div>
-
+					
 					<div class="space-y-2">
 						<label for="phone" class="block text-sm font-medium text-gray-700">Contact Info</label>
 						<input
 							name="phone"
 							type="tel"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Mobile number / Telegram username"
+                            placeholder="Mobile number"
+							required
+						/>
+					</div>
+
+					<div class="space-y-2">
+						<label for="phone" class="block text-sm font-medium text-gray-700">Telegram Username</label>
+						<input
+							name="tg_username"
+							type="tel"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Telegram @username"
 							required
 						/>
 					</div>

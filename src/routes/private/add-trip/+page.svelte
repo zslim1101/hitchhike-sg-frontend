@@ -5,8 +5,18 @@
 	// Form variables
 	let { data } = $props();
 
-	let time: string = $state(Date());
-	let pickupLocation: string = $state('');
+	function getLocalDateTime() {
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = String(now.getMonth() + 1).padStart(2, '0');
+		const day = String(now.getDate()).padStart(2, '0');
+		const hours = String(now.getHours()).padStart(2, '0');
+		const minutes = String(now.getMinutes()).padStart(2, '0');
+
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	}
+	let time: string = $state(getLocalDateTime());
+	let pickup_point: string = $state('');
 	let destination: string = $state('');
 	let minPassengers: number = $state(2);
 	let maxPassengers: number = $state(4);
@@ -14,19 +24,13 @@
 
 	// Function to handle form submission
 	async function createTrip() {
-		if (!acceptedTerms) {
-			alert('Please accept the terms and conditions.');
-			return;
-		}
-
 		const { data: trips, error } = await data.supabase.from('trips').insert([
 			{
 				time,
-				pickup_location: pickupLocation,
+				pickup_point,
 				destination,
 				min_passengers: minPassengers,
 				max_passengers: maxPassengers,
-				accepted_terms: acceptedTerms
 			}
 		]);
 
@@ -38,8 +42,11 @@
 		}
 	}
 
-	function onFlavorSelection(event: CustomEvent<AutocompleteOption<string>>): void {
-		pickupLocation = event.detail.label;
+	function onDestinationSelection(event: CustomEvent<AutocompleteOption<string>>): void {
+		destination = event.detail.label;
+	}
+	function onPickupLocationSelection(event: CustomEvent<AutocompleteOption<string>>): void {
+		pickup_point = event.detail.label;
 	}
 
 	function translateLocations(locations: any[]): AutocompleteOption<string>[] {
@@ -51,16 +58,16 @@
 		}));
 	}
 
-	const locationOptions: AutocompleteOption<string>[] = translateLocations(data.locations);
+	const locationOptions: AutocompleteOption<string>[] = translateLocations(data.locations || []);
 </script>
 
-<div class="container mx-auto">
+<div class="container mx-auto px-48">
 	<form onsubmit={createTrip} class=" rounded-lg bg-white p-6 shadow-md">
 		<h2 class="mb-2 text-xl font-semibold">Create a trip</h2>
 		<p class="mb-4 text-sm text-gray-500">Enter information about your trip</p>
 
 		<!-- Time Input -->
-		<label for="date" class="mb-1 block text-sm font-medium text-gray-700">Time</label>
+		<label for="date" class="label">Time</label>
 		<input
 			type="datetime-local"
 			bind:value={time}
@@ -68,43 +75,48 @@
 		/>
 
 		<!-- Pickup Location Select -->
-		<label for="pickup" class="mb-1 block text-sm font-medium text-gray-700"
-			>Where to pick you up?</label
-		>
-		<input
-			class="input"
-			type="search"
-			name="demo"
-			bind:value={pickupLocation}
-			placeholder="Search..."
-		/>
-		<div class="card max-h-48 w-full max-w-sm overflow-y-auto p-4" tabindex="-1">
-			<Autocomplete
-				bind:input={pickupLocation}
-				options={locationOptions}
-				on:selection={onFlavorSelection}
+		<label for="pickup" class="label mt-6">
+			<span class="font-bold">Where to pick you up?</span>
+			<input
+				class="input px-4 py-2"
+				type="search"
+				bind:value={pickup_point}
+				placeholder="Search..."
 			/>
-		</div>
-		<!-- Destination Select -->
-		<label for="dest" class="mb-1 block text-sm font-medium text-gray-700"
-			>Where do you want to go?</label
-		>
-		<select
-			bind:value={destination}
-			class="mb-4 w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
-		>
-			<option value="">Select destination</option>
-			<option value="Destination 1">Destination 1</option>
-			<option value="Destination 2">Destination 2</option>
-			<!-- Add more options as needed -->
-		</select>
+			<div class="card max-h-48 w-full max-w-sm overflow-y-auto p-4" tabindex="-1">
+				<Autocomplete
+					bind:input={pickup_point}
+					options={locationOptions}
+					on:selection={onPickupLocationSelection}
+				/>
+			</div>
+		</label>
 
-		<RangeSlider name="range-slider" bind:value={minPassengers} max={25} step={1} min={3}
-			>Minimum Passengers</RangeSlider
-		>
-		<RangeSlider name="range-slider" bind:value={maxPassengers} max={25} step={1} min={3}
-			>Maximum Passengers</RangeSlider
-		>
+		<!-- Destination Select -->
+		<label for="dest" class="label mt-6">
+			<span class="font-bold">Where do you want to go?</span>
+			<input
+				class="input px-4 py-2"
+				type="search"
+				bind:value={destination}
+				placeholder="Search..."
+			/>
+			<div class="card max-h-48 w-full max-w-sm overflow-y-auto p-4" tabindex="-1">
+				<Autocomplete
+					bind:input={destination}
+					options={locationOptions}
+					on:selection={onDestinationSelection}
+				/>
+			</div>
+		</label>
+		<div class="mt-6 font-bold">
+			<RangeSlider name="range-slider" bind:value={minPassengers} max={8} step={1} min={2}
+				>Minimum Passengers ({minPassengers})</RangeSlider
+			>
+			<RangeSlider name="range-slider" bind:value={maxPassengers} max={8} step={1} min={minPassengers}
+				>Maximum Passengers ({maxPassengers})</RangeSlider
+			>
+		</div>
 		<p class="mb-4 text-xs text-gray-500">
 			Choose the minimum and maximum amount of users for shared trip
 		</p>
@@ -112,7 +124,7 @@
 		<!-- Submit Button -->
 		<button
 			type="submit"
-			class="w-full rounded bg-gray-800 py-2 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+			class="mt-10 w-full rounded bg-gray-800 py-2 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
 		>
 			Submit
 		</button>

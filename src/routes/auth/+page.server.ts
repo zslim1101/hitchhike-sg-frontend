@@ -7,15 +7,16 @@ export const actions: Actions = {
     const formData = await request.formData()
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-    const username = formData.get('username') as string
+    const name = formData.get('name') as string
     const phone = formData.get('phone') as string
+    const tg_username = formData.get('tg_username') as string
 
     const { error } = await supabase.auth.signUp({ email, password, options:{data:{
-        username,
-        phone
+      name,
+        phone,
+        tg_username
     }} })
     if (error) {
-      console.error(error)
       redirect(303, '/auth/error')
     } else {
       redirect(303, '/private')
@@ -28,7 +29,6 @@ export const actions: Actions = {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      console.error(error)
       redirect(303, '/auth/error')
     } else {
       redirect(303, '/private')
