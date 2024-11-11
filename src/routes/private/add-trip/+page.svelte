@@ -51,13 +51,13 @@
 
 	function translateLocations(locations: any[]): AutocompleteOption<string>[] {
 		return locations.map((location) => ({
-			label: location.name,
+			label: `(${location.code}) ${location.name}`,
 			value: location.id.toString(),
-			keywords: location.name.split(' ').join(', '), // Assuming keywords are space-separated words from the name
-			meta: { type: location.location_type.toLowerCase() }
+			keywords: `${location.name}, ${location.location_type.toLowerCase()}, ${location.code}`,
+			meta: { type: location.location_type.toLowerCase(), code: location.code }
 		}));
 	}
-
+	console.log(translateLocations(data.locations || []))
 	const locationOptions: AutocompleteOption<string>[] = translateLocations(data.locations || []);
 </script>
 
