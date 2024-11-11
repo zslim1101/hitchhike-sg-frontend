@@ -64,7 +64,7 @@
 	const locationOptions: AutocompleteOption<string>[] = translateLocations(data.locations || []);
 </script>
 
-<div class="container mx-auto px-48">
+<div class="container mx-auto">
 	<form onsubmit={createTrip} class=" rounded-lg bg-white p-6 shadow-md">
 		<h2 class="mb-2 text-xl font-semibold">Create a trip</h2>
 		<p class="mb-4 text-sm text-gray-500">Enter information about your trip</p>
@@ -81,12 +81,12 @@
 		<label for="pickup" class="label mt-6">
 			<span class="font-bold">Where to pick you up?</span>
 			<input
-				class="input px-4 py-2"
+				class="input px-4 py-2 rounded-none"
 				type="search"
 				bind:value={pickup_point}
 				placeholder="Search..."
 			/>
-			<div class="card max-h-48 w-full  overflow-y-auto p-4" tabindex="-1">
+			<div class="card max-h-48 w-full rounded-none overflow-y-auto p-4" tabindex="-1">
 				<Autocomplete
 					bind:input={pickup_point}
 					options={locationOptions}
@@ -99,12 +99,12 @@
 		<label for="dest" class="label mt-6">
 			<span class="font-bold">Where do you want to go?</span>
 			<input
-				class="input px-4 py-2"
+				class="input px-4 py-2 rounded-none"
 				type="search"
 				bind:value={destination}
 				placeholder="Search..."
 			/>
-			<div class="card max-h-48 w-full  overflow-y-auto p-4" tabindex="-1">
+			<div class="card max-h-48 w-full rounded-none overflow-y-auto p-4" tabindex="-1">
 				<Autocomplete
 					bind:input={destination}
 					options={locationOptions}
@@ -116,7 +116,7 @@
 			<RangeSlider name="range-slider" bind:value={minPassengers} max={8} step={1} min={2}
 				>Minimum Passengers ({minPassengers})</RangeSlider
 			>
-			<RangeSlider name="range-slider" bind:value={maxPassengers} max={8} step={1} min={minPassengers}
+			<RangeSlider name="range-slider" bind:value={maxPassengers} max={8} step={1} min={2}
 				>Maximum Passengers ({maxPassengers})</RangeSlider
 			>
 		</div>

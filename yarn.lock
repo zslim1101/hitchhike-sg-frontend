@@ -2132,6 +2132,11 @@ svelte-eslint-parser@^0.43.0:
     postcss "^8.4.39"
     postcss-scss "^4.0.9"
 
+svelte-range-slider-pips@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/svelte-range-slider-pips/-/svelte-range-slider-pips-3.1.4.tgz#b025ed981320546d54f568e97beb223906c85c54"
+  integrity sha512-/dQjdsm9sAB3HoOHJjRqADpx3y7RVSB+djcZAicoOhZETXhoeqQrf6yoI9UTurj0pObyMQhSU7CbHagi5mrIPg==
+
 svelte@^5.0.0:
   version "5.1.9"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.1.9.tgz#e8d5f2e4b4e029091c1e3a5a0882ff75d40ba291"
