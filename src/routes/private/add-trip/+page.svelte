@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { RangeSlider } from '@skeletonlabs/skeleton';
 	import { Autocomplete } from '@skeletonlabs/skeleton';
 	import type { AutocompleteOption } from '@skeletonlabs/skeleton';
@@ -17,47 +18,49 @@
 	}
 	let time: string = $state(getLocalDateTime());
 	let pickup_point: string = $state('');
+	let pickup_point_id: string = $state('');
 	let destination: string = $state('');
+	let destination_id: string = $state('');
 	let minPassengers: number = $state(2);
 	let maxPassengers: number = $state(4);
-	let acceptedTerms: boolean = $state(false);
 
 	// Function to handle form submission
 	async function createTrip() {
-		const { data: trips, error } = await data.supabase.from('trips').insert([
-			{
-				time,
-				pickup_point,
-				destination,
-				min_passengers: minPassengers,
-				max_passengers: maxPassengers,
-			}
-		]);
+		const { data: trips, error } = await data.supabase.from('trips').insert({
+				departure_time:time,
+				pickup_point:destination_id,
+				destination:pickup_point_id,
+				min_pass: minPassengers,
+				max_pass: maxPassengers,
+				current_passengers:1,
+			});
 
 		if (error) {
 			console.error('Error creating trip:', error);
 		} else {
-			console.log('Trip created successfully:', data);
-			alert('Trip created successfully!');
+			console.log('Trip created successfully:', trips);
+			goto('/private/trips')
 		}
 	}
 
 	function onDestinationSelection(event: CustomEvent<AutocompleteOption<string>>): void {
 		destination = event.detail.label;
+		destination_id = event.detail.value;
 	}
 	function onPickupLocationSelection(event: CustomEvent<AutocompleteOption<string>>): void {
 		pickup_point = event.detail.label;
+		pickup_point_id = event.detail.value;
 	}
 
 	function translateLocations(locations: any[]): AutocompleteOption<string>[] {
 		return locations.map((location) => ({
-			label: `(${location.code}) ${location.name}`,
+			label: location.code ? `${location.code} - ${location.name}` : location.name,
 			value: location.id.toString(),
 			keywords: `${location.name}, ${location.location_type.toLowerCase()}, ${location.code}`,
 			meta: { type: location.location_type.toLowerCase(), code: location.code }
 		}));
 	}
-	console.log(translateLocations(data.locations || []))
+
 	const locationOptions: AutocompleteOption<string>[] = translateLocations(data.locations || []);
 </script>
 
@@ -83,7 +86,7 @@
 				bind:value={pickup_point}
 				placeholder="Search..."
 			/>
-			<div class="card max-h-48 w-full max-w-sm overflow-y-auto p-4" tabindex="-1">
+			<div class="card max-h-48 w-full  overflow-y-auto p-4" tabindex="-1">
 				<Autocomplete
 					bind:input={pickup_point}
 					options={locationOptions}
@@ -101,7 +104,7 @@
 				bind:value={destination}
 				placeholder="Search..."
 			/>
-			<div class="card max-h-48 w-full max-w-sm overflow-y-auto p-4" tabindex="-1">
+			<div class="card max-h-48 w-full  overflow-y-auto p-4" tabindex="-1">
 				<Autocomplete
 					bind:input={destination}
 					options={locationOptions}
