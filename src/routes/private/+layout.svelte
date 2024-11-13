@@ -1,6 +1,5 @@
 <script>
 	import { goto } from '$app/navigation';
-
 	let { children, data } = $props();
 	let logout = $derived(async () => {
 		const { error } = await data.supabase.auth.signOut();
@@ -23,6 +22,6 @@
 	</nav>
 </header>
 
-<div class="container">
+<div class="container mx-auto mt-3">
 	{@render children()}
 </div>
