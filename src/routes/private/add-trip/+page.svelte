@@ -37,7 +37,8 @@
 			destination: pickup_point_id,
 			min_pass: minPassengers,
 			max_pass: maxPassengers,
-			current_passengers: 1
+			current_passengers: 1,
+			created_by: data.user.id
 		});
 
 		if (error) {

@@ -34,6 +34,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      chatroom_members: {
+        Row: {
+          chatroom_id: number
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          chatroom_id: number
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          chatroom_id?: number
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatroom_members_chatroom_id_fkey"
+            columns: ["chatroom_id"]
+            isOneToOne: false
+            referencedRelation: "chatrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chatroom_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatrooms: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           area: string | null
@@ -64,6 +118,45 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          chatroom_id: number
+          content: string
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          chatroom_id: number
+          content: string
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          chatroom_id?: number
+          content?: string
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chatroom_id_fkey"
+            columns: ["chatroom_id"]
+            isOneToOne: false
+            referencedRelation: "chatrooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           id: string
@@ -89,23 +182,26 @@ export type Database = {
         Row: {
           created_at: string
           joined_at: string | null
+          name: string | null
           passenger_id: number
           trip_id: number | null
-          user_id: number | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           joined_at?: string | null
+          name?: string | null
           passenger_id?: number
           trip_id?: number | null
-          user_id?: number | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           joined_at?: string | null
+          name?: string | null
           passenger_id?: number
           trip_id?: number | null
-          user_id?: number | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -115,11 +211,19 @@ export type Database = {
             referencedRelation: "trips"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "trip_passengers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       trips: {
         Row: {
           created_at: string
+          created_by: string | null
           current_passengers: number | null
           departure_time: string | null
           destination: number | null
@@ -130,6 +234,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           current_passengers?: number | null
           departure_time?: string | null
           destination?: number | null
@@ -140,6 +245,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           current_passengers?: number | null
           departure_time?: string | null
           destination?: number | null
@@ -149,6 +255,13 @@ export type Database = {
           pickup_point?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "trips_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "trips_destination_fkey"
             columns: ["destination"]
