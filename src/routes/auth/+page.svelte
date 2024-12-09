@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
+	import { TabGroup, Tab,  } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 
 	let isLoginView = true; // Default view is Login
@@ -21,6 +21,21 @@
 		// Clean up the event listener
 		return () => window.removeEventListener('hashchange', checkHash);
 	});
+
+	function validatePhoneAndTgUsername() {
+		const phone = document.querySelector<HTMLInputElement>('[name="phone"]');
+		const tg_username = document.querySelector<HTMLInputElement>('[name="tg_username"]');
+
+		if (phone.value.trim() === '' && tg_username.value.trim() === '') {
+			phone.setCustomValidity('Please provide either phone or Telegram username');
+			phone.reportValidity();
+			tg_username.setCustomValidity('Please provide either phone or Telegram username');
+			tg_username.reportValidity();
+		} else {
+			phone.setCustomValidity('');
+			tg_username.setCustomValidity('');
+		}
+	}
 </script>
 
 <div class="mx-auto max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg">
@@ -112,7 +127,7 @@
 							type="tel"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Mobile number"
-							required
+							oninput={validatePhoneAndTgUsername}
 						/>
 					</div>
 
@@ -123,7 +138,7 @@
 							type="tel"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Telegram @username"
-							required
+							oninput={validatePhoneAndTgUsername}
 						/>
 					</div>
 
@@ -140,3 +155,4 @@
 		</svelte:fragment>
 	</TabGroup>
 </div>
+

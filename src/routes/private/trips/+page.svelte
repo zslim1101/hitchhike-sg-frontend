@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { LucideCircleArrowDown, LucideCircleUser, LucideMapPin, LucidePlus } from 'lucide-svelte';
-	import { onMount } from 'svelte';
 	let { data } = $props();
 
 	interface RideCard {
@@ -67,7 +66,7 @@
 
 <div class="space-y-4">
 	<div class="flex flex-col gap-3 p-2 overflow-x-auto w-full">
-		<p>Your Trip</p>
+		<p class="font-bold">Current Trip</p>
 		{#if my_trips && my_trips.length > 0}
 		{#each my_trips as ride}
 			<div class="flex flex-row  items-center justify-between rounded-lg bg-white p-4 shadow ">
@@ -166,9 +165,20 @@
 {/await}
 
 		{:else}
-		<p class="text-center bg-gray-100 p-3">Join a trip or make 1</p>
+		<div class="flex flex-row bg-gray-100 justify-center p-3 text-lg">
+			<p class="text-center p-2 font-bold">JOIN OR</p>
+
+		<a
+			href="/private/add-trip"
+			class="flex flex-row justify-center items-center gap-1 rounded bg-blue-500 px-4 py-1 font-bold text-white transition hover:bg-blue-600"
+		>
+			<LucidePlus />
+			CREATE TRIP
+		</a>
+		</div>
+
 	{/if}
-		<p>Other Trips</p>
+		<p class="font-bold">Other Trips</p>
 		{#if trips && trips.length > 0}
 			{#each trips as ride}
 				<div class="flex flex-row  items-center justify-between rounded-lg bg-white p-4 shadow ">
@@ -210,8 +220,10 @@
 							{#if data.joined_trips?.trip_id===ride.id}
 							<p>Joined</p>
 							{:else}
-							<button onclick={()=>handleUserJoin(ride)} disabled={data.joined_trips?.trip_id===ride.id} class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700"
-								>JOIN</button
+							<button onclick={()=>handleUserJoin(ride)} disabled={data.joined_trips?.trip_id===ride.id || ride.current_passengers === ride.max_pass} class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700 disabled:bg-gray-300"
+								>
+								{(data.joined_trips?.trip_id===ride.id || ride.current_passengers === ride.max_pass) ? 'FULL' : 'JOIN' }
+								</button
 							>
 							{/if}
 							
@@ -223,8 +235,8 @@
 			<p class="text-center bg-gray-100 p-3">No trips right now</p>
 		{/if}
 	</div>
-	<div class="mt-6 flex justify-center">
-		{#if data.joined_trips}
+	<!-- <div class="mt-6 flex justify-center">
+		{#if data.joined_trips || my_trips && my_trips.length > 0}
 		<div
 		class="flex flex-row justify-center gap-1 rounded bg-red-200 px-4 py-3 font-bold text-white transition "
 	>
@@ -240,5 +252,5 @@
 		</a>
 		{/if}
 		
-	</div>
+	</div> -->
 </div>

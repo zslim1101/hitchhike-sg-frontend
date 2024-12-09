@@ -3,6 +3,7 @@
 	import RangeSlider from 'svelte-range-slider-pips';
 	import { Autocomplete } from '@skeletonlabs/skeleton';
 	import type { AutocompleteOption } from '@skeletonlabs/skeleton';
+	import { LucideChevronLeft } from 'lucide-svelte';
 	// Form variables
 	let { data } = $props();
 
@@ -97,6 +98,13 @@
 </script>
 
 <div class="m-1">
+	<div>
+		<a 
+		href="/private/trips"
+		class="flex flex-row">
+			<LucideChevronLeft/>
+			Back</a>
+	</div>
 	<form onsubmit={createTrip} class="rounded-lg bg-white p-6 shadow-md">
 		<h2 class="mb-2 text-xl font-semibold">Create a trip</h2>
 		<p class="mb-4 text-sm text-gray-500">Enter information about your trip</p>

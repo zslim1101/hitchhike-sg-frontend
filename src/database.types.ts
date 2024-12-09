@@ -34,60 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      chatroom_members: {
-        Row: {
-          chatroom_id: number
-          created_at: string
-          id: number
-          user_id: string
-        }
-        Insert: {
-          chatroom_id: number
-          created_at?: string
-          id?: number
-          user_id: string
-        }
-        Update: {
-          chatroom_id?: number
-          created_at?: string
-          id?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chatroom_members_chatroom_id_fkey"
-            columns: ["chatroom_id"]
-            isOneToOne: false
-            referencedRelation: "chatrooms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "chatroom_members_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      chatrooms: {
-        Row: {
-          created_at: string
-          id: number
-          name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          name: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          name?: string
-        }
-        Relationships: []
-      }
       locations: {
         Row: {
           area: string | null
@@ -120,32 +66,32 @@ export type Database = {
       }
       messages: {
         Row: {
-          chatroom_id: number
           content: string
           created_at: string
           id: number
+          trip_id: number | null
           user_id: string
         }
         Insert: {
-          chatroom_id: number
           content: string
           created_at?: string
           id?: number
+          trip_id?: number | null
           user_id: string
         }
         Update: {
-          chatroom_id?: number
           content?: string
           created_at?: string
           id?: number
+          trip_id?: number | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "messages_chatroom_id_fkey"
-            columns: ["chatroom_id"]
+            foreignKeyName: "messages_trip_id_fkey"
+            columns: ["trip_id"]
             isOneToOne: false
-            referencedRelation: "chatrooms"
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
           {
@@ -159,18 +105,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avg_rating: number
           id: string
           name: string | null
           phone: string | null
           tg_username: string | null
         }
         Insert: {
+          avg_rating?: number
           id: string
           name?: string | null
           phone?: string | null
           tg_username?: string | null
         }
         Update: {
+          avg_rating?: number
           id?: string
           name?: string | null
           phone?: string | null
@@ -278,6 +227,38 @@ export type Database = {
           },
         ]
       }
+      user_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: number
+          rating: number | null
+          user_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: number
+          rating?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: number
+          rating?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -286,7 +267,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      trip_status: "available" | "chat-opened" | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
