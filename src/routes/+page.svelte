@@ -1,10 +1,9 @@
 <script>
 	import { page } from "$app/stores";
-	import { LucideCopyright } from "lucide-svelte";
 
 </script>
 
-<div class="bg-gray-100 font-sans">
+<div class="bg-gray-100 font-sans h-full">
     <!-- Navbar -->
     <nav class="bg-blue-500 p-4">
         <div class="container mx-auto flex justify-between items-center">
@@ -55,7 +54,9 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-blue-500 text-white py-6 text-center">
-        <p><LucideCopyright/>2024 Carpool SG. All rights reserved.</p>
-    </footer>
+    <div class="bg-blue-500 text-white py-6 text-center">
+      <div class="flex flex-row justify-center gap-3">
+        <p>2024 Carpool SG. All rights reserved. </p>
+      </div>
+    </div>
 </div>
