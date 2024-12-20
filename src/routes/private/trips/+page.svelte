@@ -3,14 +3,6 @@
 	import { LucideCircleArrowDown, LucideCircleUser, LucideMapPin, LucidePlus } from 'lucide-svelte';
 	let { data } = $props();
 
-	interface RideCard {
-		id: number;
-		pickup: string;
-		destination: string;
-		time: string;
-		spots: string;
-	}
-
 	let trips = data.trips;
 	let my_trips = data.my_trips;
 
@@ -43,11 +35,16 @@
 		});
 
 		if (error) {
-			alert('You have joined');
+			alert('You already joined');
 		} else {
+			let status = 'available';
+			if (ride?.current_passengers + 1 === ride.max_pass) {
+				status = 'closed';
+			}
+
 			const { error: updateError } = await data.supabase
 				.from('trips')
-				.update({ current_passengers: ride?.current_passengers + 1 })
+				.update({ current_passengers: ride?.current_passengers + 1, status })
 				.eq('id', ride.id);
 
 			if (updateError) {

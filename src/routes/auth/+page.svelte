@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { TabGroup, Tab,  } from '@skeletonlabs/skeleton';
+	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
-
+	export let form;
 	let isLoginView = true; // Default view is Login
 	let tabSet: number = 0;
 	// Function to switch the view based on the hash in URL
@@ -53,12 +53,21 @@
 			{#if tabSet === 0}
 				<!-- Login Form -->
 				<form method="POST" action="?/login" class="space-y-6">
+					{#if form?.user_exists}
+						<p class="mt-4 text-center font-bold text-red-300">
+							You already have an account, please login.
+						</p>
+					{/if}
+					{#if form?.invalid_login}
+						<p class="mt-4 text-center font-bold text-red-300">Invalid login credentials</p>
+					{/if}
+
 					<div class="space-y-2">
 						<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
 						<input
 							name="email"
 							type="email"
-                             placeholder="your@email.com"
+							placeholder="your@email.com"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -69,7 +78,7 @@
 						<input
 							name="password"
 							type="password"
-                            placeholder="Your password"
+							placeholder="Your password"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -92,7 +101,7 @@
 						<input
 							name="email"
 							type="email"
-                             placeholder="your@email.com"
+							placeholder="your@email.com"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -103,7 +112,7 @@
 						<input
 							name="password"
 							type="password"
-                            placeholder="Your password"
+							placeholder="Your password"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
 							required
 						/>
@@ -115,29 +124,31 @@
 							name="name"
 							type="text"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="John Doe"
+							placeholder="John Doe"
 							required
 						/>
 					</div>
-					
+
 					<div class="space-y-2">
 						<label for="phone" class="block text-sm font-medium text-gray-700">Contact Info</label>
 						<input
 							name="phone"
 							type="tel"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Mobile number"
+							placeholder="Mobile number"
 							oninput={validatePhoneAndTgUsername}
 						/>
 					</div>
 
 					<div class="space-y-2">
-						<label for="phone" class="block text-sm font-medium text-gray-700">Telegram Username</label>
+						<label for="phone" class="block text-sm font-medium text-gray-700"
+							>Telegram Username</label
+						>
 						<input
 							name="tg_username"
 							type="tel"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Telegram @username"
+							placeholder="Telegram @username"
 							oninput={validatePhoneAndTgUsername}
 						/>
 					</div>
@@ -155,4 +166,3 @@
 		</svelte:fragment>
 	</TabGroup>
 </div>
-
