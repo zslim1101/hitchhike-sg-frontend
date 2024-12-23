@@ -27,26 +27,30 @@
 	let pickup_point_id: string = $state('');
 	let destination: string = $state('');
 	let destination_id: string = $state('');
-	let minPassengers: number = $derived(values[0])
-	let maxPassengers: number =  $derived(values[1])
+	let minPassengers: number = $derived(values[0]);
+	let maxPassengers: number = $derived(values[1]);
 
 	// Function to handle form submission
 	async function createTrip() {
-		const { data: trips, error } = await data.supabase.from('trips').insert({
-			departure_time: time,
-			pickup_point: destination_id,
-			destination: pickup_point_id,
-			min_pass: minPassengers,
-			max_pass: maxPassengers,
-			current_passengers: 1,
-			created_by: data.user.id
-		});
+		const { data: trip, error } = await data.supabase
+			.from('trips')
+			.insert({
+				departure_time: time,
+				pickup_point: destination_id,
+				destination: pickup_point_id,
+				min_pass: minPassengers,
+				max_pass: maxPassengers,
+				current_passengers: 1,
+				created_by: data.user.id
+			})
+			.select('*')
+			.single();
 
 		if (error) {
 			console.error('Error creating trip:', error);
 		} else {
-			console.log('Trip created successfully:', trips);
-			goto('/private/trips');
+			console.log('Trip created successfully:', trip.id);
+			goto(`/private/trips/${trip.id}`);
 		}
 	}
 
@@ -98,12 +102,11 @@
 </script>
 
 <div class="m-1">
-	<div>
-		<a 
-		href="/private/trips"
-		class="flex flex-row">
-			<LucideChevronLeft/>
-			Back</a>
+	<div class="mb-1">
+		<a href="/private/trips" class="flex w-fit flex-row pr-3">
+			<LucideChevronLeft />
+			Return</a
+		>
 	</div>
 	<form onsubmit={createTrip} class="rounded-lg bg-white p-6 shadow-md">
 		<h2 class="mb-2 text-xl font-semibold">Create a trip</h2>
@@ -153,7 +156,17 @@
 			</div>
 		</label>
 		<div class="mt-6 font-bold">
-			<RangeSlider range pushy pips all="label" bind:values on:change={slide} on:stop={stop} {min} {max} />
+			<RangeSlider
+				range
+				pushy
+				pips
+				all="label"
+				bind:values
+				on:change={slide}
+				on:stop={stop}
+				{min}
+				{max}
+			/>
 		</div>
 		<p class="mb-4 text-xs text-gray-500">
 			Choose the minimum and maximum amount of users for shared trip

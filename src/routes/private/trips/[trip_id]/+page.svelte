@@ -1,6 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { LucideCircleArrowDown, LucideCircleUser, LucideMapPin, LucidePlus } from 'lucide-svelte';
+	import {
+		LucideChevronLeft,
+		LucideCircleArrowDown,
+		LucideCircleUser,
+		LucideMapPin
+	} from 'lucide-svelte';
 
 	let { data }: { data: PageData } = $props();
 	import { goto } from '$app/navigation';
@@ -17,17 +22,19 @@
 
 	onMount(() => {
 		const messagesChannel = data.supabase
-			.channel('messages')
+			.channel(`messages:${trip_id}`)
 			.on(
 				'postgres_changes',
 				{ event: 'INSERT', schema: 'public', table: 'messages' },
 				(payload) => {
-					fetchMessages();
+					// fetchMessages();
+					console.log(payload.new);
+					messages.set([payload.new, ...$messages]);
 				}
 			)
 			.subscribe();
 		return () => {
-			messagesChannel.unsubscribe();
+			data.supabase.removeChannel(messagesChannel);
 		};
 	});
 
@@ -37,7 +44,7 @@
 			.from('messages')
 			.select('*')
 			.eq('trip_id', trip_id)
-			.order('created_at', { ascending: true });
+			.order('created_at', { ascending: false });
 
 		if (error) {
 			console.error('Error fetching messages:', error);
@@ -49,7 +56,8 @@
 	}
 
 	// Send new message
-	async function sendMessage() {
+	async function sendMessage(event) {
+		event.preventDefault();
 		if (!newMessage.trim()) return;
 
 		const { error } = await data.supabase.from('messages').insert([
@@ -67,7 +75,6 @@
 		}
 
 		newMessage = ''; // Reset message input after sending
-		fetchMessages(); // Refresh the messages
 	}
 
 	function formatHumanReadable(dateString) {
@@ -87,7 +94,6 @@
 	}
 
 	console.log(ride);
-
 
 	const LeaveTrip = async () => {
 		const { error: t_pas_error } = await data.supabase
@@ -117,8 +123,14 @@
 	};
 </script>
 
-<div class="space-y-4">
-	<div class="   container m-1 mx-auto w-full bg-white p-4 shadow">
+<div>
+	<div class="mb-1">
+		<a href="/private/trips" class="flex w-fit flex-row pr-3">
+			<LucideChevronLeft />
+			Return</a
+		>
+	</div>
+	<div class="container m-1 mx-auto w-full bg-white p-4 shadow">
 		<div class="flex flex-row items-center justify-between rounded-lg">
 			<!-- Pickup and Destination Points -->
 			<div class="flex items-center space-x-4">
@@ -175,66 +187,81 @@
 					{/each}
 				</ul>
 			</div>
-
-		
 		</div>
-		<div class="mt-10">
+		<div class="mt-10 flex flex-row items-center gap-3">
 			{#if ride?.created_by === data.user?.id}
 				<button
 					onclick={DeleteTrip}
-					class="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700">Delete</button
+					class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+					>Cancel Trip</button
 				>
+				<p>Warning: Other users will be removed from the trip</p>
 			{:else}
-				<button onclick={LeaveTrip} class="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-					>Leave</button
+				<button
+					onclick={LeaveTrip}
+					class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
+					>Leave Trip</button
 				>
 			{/if}
 		</div>
 
 		<div>
-			<div class="mx-auto max-w-4xl space-y-4 p-4">
-				<h2 class="text-center text-2xl font-semibold text-gray-800">
-					Instant Chat
-				</h2>
-			
+			<div class="space-y-4 p-4">
+				<h2 class="text-center text-2xl font-semibold text-gray-800">Instant Chat</h2>
+
 				{#if $isLoading}
 					<p class="text-center text-gray-500">Loading messages...</p>
 				{:else}
 					<!-- Message Display Area -->
-					<div class="max-h-96 space-y-4 overflow-y-auto rounded-lg bg-gray-50 p-4 shadow-md">
+					<div
+						class="flex max-h-96 flex-col-reverse space-y-4 overflow-y-auto rounded-lg bg-gray-50 p-4 shadow-md"
+					>
 						{#each $messages as { content, created_at, user_id, name }}
-							<div class="rounded-lg  p-3 {user_id === data.user?.id ? 'bg-blue-100' : 'bg-white'} shadow-sm" >
-								<div class="mb-2 flex items-center justify-between">
-									<span class="text-sm font-semibold   text-gray-700">{name}</span>
-									<span class="text-xs text-gray-500">{new Date(created_at).toLocaleTimeString()}</span>
+							{#if user_id === data.user?.id}
+								<!-- User Message -->
+								<div class="mb-2 self-end">
+									<p class="text-right font-semibold text-red-700">
+										<span class="text-xs text-red-300"
+											>{new Date(created_at).toLocaleTimeString()}</span
+										> You
+									</p>
+									<p
+										class="w-fit break-all rounded-md border border-red-300 bg-red-100 px-3 py-2 text-gray-800 shadow-md"
+									>
+										{content}
+									</p>
 								</div>
-								<p class="text-gray-800">{content}</p>
-							</div>
+							{:else}
+								<!-- Other User Message -->
+								<div class="mb-2">
+									<p class="font-semibold capitalize text-purple-700">{name}</p>
+									<p
+										class="w-fit break-all rounded-md border border-purple-300 bg-purple-100 px-3 py-2 text-gray-800 shadow-md"
+									>
+										{content}
+									</p>
+								</div>
+							{/if}
 						{/each}
 					</div>
 				{/if}
-			
+
 				<!-- Message Input Area -->
-				<div class="flex flex-col space-y-2 ">
-					<textarea
+				<form onsubmit={sendMessage} class="flex flex-col space-y-2">
+					<input
 						bind:value={newMessage}
 						placeholder="Type your message..."
-						rows="4"
-						class="resize-none rounded-lg border-2 border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-					></textarea>
+						class="w-full rounded-lg border-2 border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+						type="text"
+					/>
 					<button
-						onclick={sendMessage}
+						type="submit"
 						class="rounded-lg bg-teal-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
 					>
 						Send
 					</button>
-				</div>
+				</form>
 			</div>
 		</div>
-
 	</div>
-
-	
-
-
 </div>

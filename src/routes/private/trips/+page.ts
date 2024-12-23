@@ -1,6 +1,7 @@
 import type { PageLoad } from './$types';
 
-export const load = (async ({ parent }) => {
+export const load = (async ({ parent, depends }) => {
+	depends('trips:all-trips');
 	const { supabase, user } = await parent();
 
 	const { data: my_trips } = await supabase
@@ -22,5 +23,9 @@ export const load = (async ({ parent }) => {
 		.eq('user_id', user?.id)
 		.maybeSingle();
 
-	return { my_trips, trips, joined_trips };
+	return {
+		my_trips: my_trips?.filter((trip) => new Date(trip.departure_time) > new Date()),
+		trips: trips?.filter((trip) => new Date(trip.departure_time) > new Date()),
+		joined_trips
+	};
 }) satisfies PageLoad;

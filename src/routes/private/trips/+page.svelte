@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 	import { LucideCircleArrowDown, LucideCircleUser, LucideMapPin, LucidePlus } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	let { data } = $props();
 
-	let trips = data.trips;
-	let my_trips = data.my_trips;
+	const trips = $derived(data.trips);
+	const my_trips = $derived(data.my_trips);
+
+	let isjoiningaTrip = $state(false);
 
 	function formatHumanReadable(dateString) {
 		const date = new Date(dateString); // Parses as UTC
@@ -23,8 +26,10 @@
 	}
 
 	const handleUserJoin = async (ride) => {
+		isjoiningaTrip = true;
 		if (ride?.current_passengers > ride.max_pass) {
 			alert('full');
+			isjoiningaTrip = false;
 			return;
 		}
 
@@ -50,10 +55,27 @@
 			if (updateError) {
 				alert('Full');
 			} else {
-				goto(`/private/trips/${ride.id}`);
+				// goto(`/private/trips/${ride.id}`);
+				window.location.href = `/private/trips/${ride.id}`;
+				isjoiningaTrip = false;
+				return;
 			}
+			isjoiningaTrip = false;
 		}
 	};
+
+	onMount(() => {
+		const channel = data.supabase
+			.channel('public:trips')
+			.on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, (payload) => {
+				invalidate('trips:all-trips');
+			})
+			.subscribe();
+
+		return () => {
+			data.supabase.removeChannel(channel);
+		};
+	});
 </script>
 
 <div class="space-y-4">
@@ -179,12 +201,15 @@
 					href="/private/add-trip"
 					class="flex flex-row items-center justify-center gap-1 rounded bg-blue-500 px-4 py-1 font-bold text-white transition hover:bg-blue-600"
 				>
-					<LucidePlus />
 					CREATE TRIP
+					<LucidePlus />
 				</a>
 			</div>
 		{/if}
 		<p class="font-bold">Other Trips</p>
+		{#if isjoiningaTrip}
+			<p>Joinging a trip</p>
+		{/if}
 		{#if trips && trips.length > 0}
 			{#each trips as ride}
 				<div class="flex flex-row items-center justify-between rounded-lg bg-white p-4 shadow">
@@ -228,11 +253,14 @@
 								>
 								<span class="text-sm font-bold"></span>
 							</div>
+
 							{#if data.joined_trips?.trip_id === ride.id}
 								<p>Joined</p>
 							{:else}
 								<button
-									onclick={() => handleUserJoin(ride)}
+									onclick={async () => {
+										handleUserJoin(ride);
+									}}
 									disabled={data.joined_trips?.trip_id === ride.id ||
 										ride.current_passengers === ride.max_pass}
 									class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700 disabled:bg-gray-300"
