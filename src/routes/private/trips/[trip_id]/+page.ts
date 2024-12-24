@@ -1,7 +1,33 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
-export const load = (async ({ parent, params }) => {
-	const { supabase } = await parent();
+export const load = (async ({ parent, params, depends }) => {
+	depends('trips:single-trip');
+	const { supabase, user } = await parent();
+
+	const { data: if_owns_trip } = await supabase
+		.from('trips')
+		.select('*')
+		.eq('id', params.trip_id)
+		.eq('created_by', user?.id)
+		.single();
+
+	if (if_owns_trip) {
+		//do nothing
+	} else {
+		const { data: if_join_the_trip } = await supabase
+			.from('trip_passengers')
+			.select('*')
+			.eq('trip_id', params.trip_id)
+			.eq('user_id', user?.id)
+			.single();
+		if (if_join_the_trip) {
+			//do nothing
+		} else {
+			redirect(301, '/private/trips');
+		}
+	}
+
 	const { data: my_trip } = await supabase
 		.from('trips')
 		.select(

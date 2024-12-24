@@ -100,6 +100,42 @@ export type Database = {
 					}
 				];
 			};
+			past_trips: {
+				Row: {
+					created_at: string;
+					id: number;
+					trip_id: number | null;
+					user_id: string | null;
+				};
+				Insert: {
+					created_at?: string;
+					id?: number;
+					trip_id?: number | null;
+					user_id?: string | null;
+				};
+				Update: {
+					created_at?: string;
+					id?: number;
+					trip_id?: number | null;
+					user_id?: string | null;
+				};
+				Relationships: [
+					{
+						foreignKeyName: 'past_trips_trip_id_fkey';
+						columns: ['trip_id'];
+						isOneToOne: false;
+						referencedRelation: 'trips';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'past_trips_user_id_fkey';
+						columns: ['user_id'];
+						isOneToOne: false;
+						referencedRelation: 'profiles';
+						referencedColumns: ['id'];
+					}
+				];
+			};
 			profiles: {
 				Row: {
 					avg_rating: number;
@@ -233,6 +269,7 @@ export type Database = {
 					created_at: string;
 					id: number;
 					rating: number | null;
+					trip_id: number | null;
 					user_id: string | null;
 				};
 				Insert: {
@@ -240,6 +277,7 @@ export type Database = {
 					created_at?: string;
 					id?: number;
 					rating?: number | null;
+					trip_id?: number | null;
 					user_id?: string | null;
 				};
 				Update: {
@@ -247,9 +285,17 @@ export type Database = {
 					created_at?: string;
 					id?: number;
 					rating?: number | null;
+					trip_id?: number | null;
 					user_id?: string | null;
 				};
 				Relationships: [
+					{
+						foreignKeyName: 'user_reviews_trip_id_fkey';
+						columns: ['trip_id'];
+						isOneToOne: false;
+						referencedRelation: 'trips';
+						referencedColumns: ['id'];
+					},
 					{
 						foreignKeyName: 'user_reviews_user_id_fkey';
 						columns: ['user_id'];

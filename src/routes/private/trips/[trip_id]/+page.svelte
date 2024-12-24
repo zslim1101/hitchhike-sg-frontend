@@ -8,12 +8,12 @@
 	} from 'lucide-svelte';
 
 	let { data }: { data: PageData } = $props();
-	import { goto } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { page } from '$app/stores';
 
-	let ride = data.my_trip;
+	let ride = $derived(data.my_trip);
 
 	let trip_id = $page.params.trip_id;
 	let messages = writable(data.messages);
@@ -28,13 +28,25 @@
 				{ event: 'INSERT', schema: 'public', table: 'messages' },
 				(payload) => {
 					// fetchMessages();
-					console.log(payload.new);
 					messages.set([payload.new, ...$messages]);
 				}
 			)
 			.subscribe();
 		return () => {
 			data.supabase.removeChannel(messagesChannel);
+		};
+	});
+
+	onMount(() => {
+		const channel = data.supabase
+			.channel('public:trips')
+			.on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, (payload) => {
+				invalidate('trips:single-trip');
+			})
+			.subscribe();
+
+		return () => {
+			data.supabase.removeChannel(channel);
 		};
 	});
 
@@ -59,6 +71,20 @@
 	async function sendMessage(event) {
 		event.preventDefault();
 		if (!newMessage.trim()) return;
+
+		if (ride?.status !== 'chat-opened') {
+			console.log('dwad');
+			const { error: trip_status } = await data.supabase
+				.from('trips')
+				.update({ status: 'chat-opened' })
+				.eq('id', trip_id);
+
+			if (trip_status) {
+				console.error('Error updating trip status:', trip_status);
+			} else {
+				invalidate('trips:single-trip');
+			}
+		}
 
 		const { error } = await data.supabase.from('messages').insert([
 			{
@@ -93,8 +119,6 @@
 		return `${day} ${month} ${year} ${String(hours).padStart(2, '0')}:${minutes} ${period}`;
 	}
 
-	console.log(ride);
-
 	const LeaveTrip = async () => {
 		const { error: t_pas_error } = await data.supabase
 			.from('trip_passengers')
@@ -121,6 +145,64 @@
 			goto('/private/trips');
 		}
 	};
+
+	const MarkTripComplete = async () => {
+		const { error: trip_error } = await data.supabase
+			.from('trips')
+			.update({ status: 'closed' })
+			.eq('id', ride?.id);
+		if (trip_error) {
+		} else {
+			const { error: trip_passengers_error, data: trip_passengers } = await data.supabase
+				.from('trip_passengers')
+				.select('*')
+				.eq('trip_id', ride?.id);
+
+			const trip_passengers_user_ids = [
+				{ user_id: ride?.created_by, trip_id: ride?.id },
+				...trip_passengers.map((tp) => ({
+					user_id: tp.user_id,
+					trip_id: ride?.id
+				}))
+			];
+
+			if (trip_passengers_error) {
+			} else {
+				const { error: review_error } = await data.supabase
+					.from('past_trips')
+					.insert(trip_passengers_user_ids);
+				if (review_error) {
+				} else {
+					goto('/private/trips');
+				}
+			}
+		}
+	};
+
+	const handleSubmitReview = async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(event.target);
+		const rating = Number(formData.get('rating'));
+		const comment = formData.get('comment');
+		const ride_id = formData.get('ride_id');
+		const user_id = formData.get('user_id');
+
+		const { error: review_error } = await data.supabase.from('user_reviews').insert([
+			{
+				trip_id: ride_id,
+				user_id: user_id,
+				rating,
+				comment
+			}
+		]);
+
+		if (review_error) {
+			console.error('Error submitting review:', review_error);
+		} else {
+			invalidate('trips:single-trip');
+		}
+	};
 </script>
 
 <div>
@@ -131,6 +213,19 @@
 		>
 	</div>
 	<div class="container m-1 mx-auto w-full bg-white p-4 shadow">
+		<div class="mb-3 flex items-center space-x-2 text-gray-700">
+			<span class="text-sm font-bold">Ride Status:</span>
+			<span
+				class={'text-sm font-bold uppercase ' +
+					(ride.status === 'available'
+						? 'text-green-500'
+						: ride.status === 'chat-opened'
+							? 'text-blue-500'
+							: 'text-red-500')}
+			>
+				{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
+			</span>
+		</div>
 		<div class="flex flex-row items-center justify-between rounded-lg">
 			<!-- Pickup and Destination Points -->
 			<div class="flex items-center space-x-4">
@@ -176,92 +271,285 @@
 					<span class="text-sm font-bold">Riders</span>
 				</div>
 			</div>
+		</div>
 
+		{#if ride?.status !== 'closed'}
 			<!-- List of passengers -->
 			<div class="flex flex-col space-y-2">
 				<h2 class="text-lg font-bold">Passengers:</h2>
-				<ul class="ml-4 list-disc">
-					<li>Owner</li>
+				<ul class="ml-4 list-none space-y-2">
+					<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
+						<div class="flex items-center justify-between">
+							<div>
+								{#await data.supabase
+									.from('profiles')
+									.select('*')
+									.eq('id', ride?.created_by)
+									.single()}
+									<p>Loading...</p>
+								{:then { data: owner }}
+									<p class="font-semibold text-gray-800">{owner.name} (Owner)</p>
+								{/await}
+							</div>
+							<div>
+								{#await data.supabase
+									.from('user_reviews')
+									.select('*')
+									.eq('user_id', ride?.created_by)}
+									<p>Loading...</p>
+								{:then { data: reviews }}
+									{#if reviews.length === 0}
+										<p class="text-gray-500">User has no reviews</p>
+									{:else}
+										<p class="text-gray-500">
+											Average rating:
+											<strong
+												>{(
+													reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+												).toFixed(1)}</strong
+											>
+										</p>
+									{/if}
+								{/await}
+							</div>
+						</div>
+					</li>
 					{#each ride?.trip_passengers as passenger}
-						<li>{passenger?.name} (Joined: {new Date(passenger.joined_at).toLocaleString()})</li>
+						<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
+							<div class="flex items-center justify-between">
+								<div class="font-semibold text-gray-800">
+									{passenger?.name}
+								</div>
+								<div>
+									{#await data.supabase
+										.from('user_reviews')
+										.select('*')
+										.eq('user_id', passenger?.user_id)}
+										<p>Loading...</p>
+									{:then { data: reviews }}
+										{#if reviews.length === 0}
+											<p class="text-gray-500">User has no reviews</p>
+										{:else}
+											<p class="text-gray-500">
+												Average rating:
+												<strong
+													>{(
+														reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+													).toFixed(1)}</strong
+												>
+											</p>
+										{/if}
+									{/await}
+								</div>
+							</div>
+						</li>
 					{/each}
 				</ul>
 			</div>
-		</div>
-		<div class="mt-10 flex flex-row items-center gap-3">
-			{#if ride?.created_by === data.user?.id}
-				<button
-					onclick={DeleteTrip}
-					class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-					>Cancel Trip</button
-				>
-				<p>Warning: Other users will be removed from the trip</p>
-			{:else}
-				<button
-					onclick={LeaveTrip}
-					class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
-					>Leave Trip</button
-				>
-			{/if}
-		</div>
 
-		<div>
-			<div class="space-y-4 p-4">
-				<h2 class="text-center text-2xl font-semibold text-gray-800">Instant Chat</h2>
-
-				{#if $isLoading}
-					<p class="text-center text-gray-500">Loading messages...</p>
-				{:else}
-					<!-- Message Display Area -->
-					<div
-						class="flex max-h-96 flex-col-reverse space-y-4 overflow-y-auto rounded-lg bg-gray-50 p-4 shadow-md"
+			<div class="mt-10 flex flex-row items-center gap-3">
+				{#if ride?.created_by === data.user?.id}
+					<button
+						onclick={DeleteTrip}
+						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+						>Cancel Trip</button
 					>
-						{#each $messages as { content, created_at, user_id, name }}
-							{#if user_id === data.user?.id}
-								<!-- User Message -->
-								<div class="mb-2 self-end">
-									<p class="text-right font-semibold text-red-700">
-										<span class="text-xs text-red-300"
-											>{new Date(created_at).toLocaleTimeString()}</span
-										> You
-									</p>
-									<p
-										class="w-fit break-all rounded-md border border-red-300 bg-red-100 px-3 py-2 text-gray-800 shadow-md"
-									>
-										{content}
-									</p>
+					<p>Warning: Other users will be removed from the trip</p>
+				{:else}
+					<button
+						onclick={LeaveTrip}
+						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
+						>Leave Trip</button
+					>
+				{/if}
+			</div>
+
+			<div class="mt-10 flex flex-row items-center gap-3">
+				<button
+					onclick={MarkTripComplete}
+					class="text-nowrap rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+					>Mark Trip Complete</button
+				>
+				<p>Warning: This will close the chat and mark the trip as complete</p>
+			</div>
+		{/if}
+
+		{#if ride?.status === 'closed'}
+			<div class="mt-5 bg-gray-100 p-4">
+				<p>Review Users:</p>
+			</div>
+			<div class="flex flex-col space-y-2">
+				<h2 class="text-lg font-bold">Passengers:</h2>
+				<ul class="ml-4 list-disc">
+					<li>
+						{#await data.supabase.from('profiles').select('*').eq('id', ride?.created_by).single()}
+							Loading...
+						{:then { data: owner }}
+							{owner.name} (Owner)
+						{/await}
+
+						{#await data.supabase
+							.from('user_reviews')
+							.select('*')
+							.eq('user_id', ride?.created_by)
+							.eq('trip_id', ride?.id)
+							.single()}
+							Loading...
+						{:then { data: exists }}
+							{#if exists}
+								<div class="m-2 flex flex-col space-y-2 border p-2">
+									<p class="font-bold">Your review:</p>
+									<p>{exists.comment}</p>
+									<p class="text-sm text-gray-700">Rating: {exists.rating}</p>
 								</div>
 							{:else}
-								<!-- Other User Message -->
-								<div class="mb-2">
-									<p class="font-semibold capitalize text-purple-700">{name}</p>
-									<p
-										class="w-fit break-all rounded-md border border-purple-300 bg-purple-100 px-3 py-2 text-gray-800 shadow-md"
-									>
-										{content}
-									</p>
-								</div>
-							{/if}
-						{/each}
-					</div>
-				{/if}
+								<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row items-center gap-2">
+									<input type="hidden" name="ride_id" value={ride?.id} />
+									<input type="hidden" name="user_id" value={ride?.created_by} />
+									<label class="flex flex-col">
+										<span class="text-sm text-gray-700">Rating (1 to 5):</span>
+										<input
+											name="rating"
+											type="number"
+											class="rounded border p-2"
+											min="1"
+											max="5"
+											placeholder="1-5"
+										/>
+									</label>
+									<label class="flex flex-col">
+										<span class="text-sm text-gray-700">Comment:</span>
+										<input
+											name="comment"
+											type="text"
+											class="rounded border p-2"
+											placeholder="Type a comment"
+										/>
+									</label>
 
-				<!-- Message Input Area -->
-				<form onsubmit={sendMessage} class="flex flex-col space-y-2">
-					<input
-						bind:value={newMessage}
-						placeholder="Type your message..."
-						class="w-full rounded-lg border-2 border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-						type="text"
-					/>
-					<button
-						type="submit"
-						class="rounded-lg bg-teal-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
-					>
-						Send
-					</button>
-				</form>
+									<button
+										type="submit"
+										class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+									>
+										Submit
+									</button>
+								</form>
+							{/if}
+						{/await}
+					</li>
+					{#each ride?.trip_passengers as passenger}
+						<li>
+							{passenger?.name}
+							{#await data.supabase
+								.from('user_reviews')
+								.select('*')
+								.eq('user_id', passenger?.user_id)
+								.eq('trip_id', ride?.id)
+								.single()}
+								Loading...
+							{:then { data: exists }}
+								{#if exists}
+									<div class="m-2 flex flex-col space-y-2 border p-2">
+										<p class="font-bold">Your review:</p>
+										<p>{exists.comment}</p>
+										<p class="text-sm text-gray-700">Rating: {exists.rating}</p>
+									</div>
+								{:else}
+									<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row items-center gap-2">
+										<input type="hidden" name="ride_id" value={ride?.id} />
+										<input type="hidden" name="user_id" value={passenger?.user_id} />
+										<label class="flex flex-col">
+											<span class="text-sm text-gray-700">Rating (1 to 5):</span>
+											<input
+												name="rating"
+												type="number"
+												class="rounded border p-2"
+												min="1"
+												max="5"
+												placeholder="1-5"
+											/>
+										</label>
+										<label class="flex flex-col">
+											<span class="text-sm text-gray-700">Comment:</span>
+											<input
+												name="comment"
+												type="text"
+												class="rounded border p-2"
+												placeholder="Type a comment"
+											/>
+										</label>
+										<button
+											type="submit"
+											class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+										>
+											Submit
+										</button>
+									</form>
+								{/if}
+							{/await}
+						</li>
+					{/each}
+				</ul>
 			</div>
-		</div>
+		{:else}
+			<div>
+				<div class="space-y-4 p-4">
+					<h2 class="text-center text-2xl font-semibold text-gray-800">Instant Chat</h2>
+
+					{#if $isLoading}
+						<p class="text-center text-gray-500">Loading messages...</p>
+					{:else}
+						<!-- Message Display Area -->
+						<div
+							class="flex max-h-96 flex-col-reverse space-y-4 overflow-y-auto rounded-lg bg-gray-50 p-4 shadow-md"
+						>
+							{#each $messages as { content, created_at, user_id, name }}
+								{#if user_id === data.user?.id}
+									<!-- User Message -->
+									<div class="mb-2 self-end">
+										<p class="text-right font-semibold text-red-700">
+											<span class="text-xs text-red-300"
+												>{new Date(created_at).toLocaleTimeString()}</span
+											> You
+										</p>
+										<p
+											class="w-fit break-all rounded-md border border-red-300 bg-red-100 px-3 py-2 text-gray-800 shadow-md"
+										>
+											{content}
+										</p>
+									</div>
+								{:else}
+									<!-- Other User Message -->
+									<div class="mb-2">
+										<p class="font-semibold capitalize text-purple-700">{name}</p>
+										<p
+											class="w-fit break-all rounded-md border border-purple-300 bg-purple-100 px-3 py-2 text-gray-800 shadow-md"
+										>
+											{content}
+										</p>
+									</div>
+								{/if}
+							{/each}
+						</div>
+					{/if}
+
+					<!-- Message Input Area -->
+					<form onsubmit={sendMessage} class="flex flex-col space-y-2">
+						<input
+							bind:value={newMessage}
+							placeholder="Type your message..."
+							class="w-full rounded-lg border-2 border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+							type="text"
+						/>
+						<button
+							type="submit"
+							class="rounded-lg bg-teal-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+						>
+							Send
+						</button>
+					</form>
+				</div>
+			</div>
+		{/if}
 	</div>
 </div>
