@@ -4,9 +4,12 @@
 		LucideChevronLeft,
 		LucideCircleArrowDown,
 		LucideCircleUser,
-		LucideMapPin
+		LucideMapPin,
+		LucideStar,
+		LucideStarHalf,
+		LucideStarOff
 	} from 'lucide-svelte';
-
+	import { Ratings } from '@skeletonlabs/skeleton';
 	let { data }: { data: PageData } = $props();
 	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -19,6 +22,10 @@
 	let messages = writable(data.messages);
 	let newMessage = $state('');
 	let isLoading = writable(false);
+
+	let reviewvalue = $state(1);
+
+	let reviewvalues = $state([1, 1, 1, 1, 1, 1, 1, 1]);
 
 	onMount(() => {
 		const messagesChannel = data.supabase
@@ -191,7 +198,8 @@
 		const { error: review_error } = await data.supabase.from('user_reviews').insert([
 			{
 				trip_id: ride_id,
-				user_id: user_id,
+				review_for: user_id,
+				created_by: data.user?.id,
 				rating,
 				comment
 			}
@@ -203,6 +211,28 @@
 			invalidate('trips:single-trip');
 		}
 	};
+
+	const iconClick = reverseDebounce((event: CustomEvent<{ index: number }>) => {
+		reviewvalue = event.detail.index;
+	}, 100);
+
+	const iconClickss = reverseDebounce((event: CustomEvent<{ index: number }>, arr_index) => {
+		reviewvalues[arr_index] = event.detail.index;
+	}, 100);
+
+	function reverseDebounce(func, delay) {
+		let inCooldown = false;
+
+		return function (...args) {
+			if (!inCooldown) {
+				func.apply(this, args); // Execute immediately
+				inCooldown = true;
+				setTimeout(() => {
+					inCooldown = false;
+				}, delay);
+			}
+		};
+	}
 </script>
 
 <div>
@@ -288,14 +318,16 @@
 									.single()}
 									<p>Loading...</p>
 								{:then { data: owner }}
-									<p class="font-semibold text-gray-800">{owner.name} (Owner)</p>
+									<a class="font-semibold text-gray-800" href="/private/profile/{ride?.created_by}"
+										>{owner.name} (Owner)</a
+									>
 								{/await}
 							</div>
 							<div>
 								{#await data.supabase
 									.from('user_reviews')
 									.select('*')
-									.eq('user_id', ride?.created_by)}
+									.eq('review_for', ride?.created_by)}
 									<p>Loading...</p>
 								{:then { data: reviews }}
 									{#if reviews.length === 0}
@@ -317,14 +349,14 @@
 					{#each ride?.trip_passengers as passenger}
 						<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
 							<div class="flex items-center justify-between">
-								<div class="font-semibold text-gray-800">
+								<a href="/private/profile/{passenger?.user_id}" class="font-semibold text-gray-800">
 									{passenger?.name}
-								</div>
+								</a>
 								<div>
 									{#await data.supabase
 										.from('user_reviews')
 										.select('*')
-										.eq('user_id', passenger?.user_id)}
+										.eq('review_for', passenger?.user_id)}
 										<p>Loading...</p>
 									{:then { data: reviews }}
 										{#if reviews.length === 0}
@@ -385,13 +417,14 @@
 						{#await data.supabase.from('profiles').select('*').eq('id', ride?.created_by).single()}
 							Loading...
 						{:then { data: owner }}
-							{owner.name} (Owner)
+							<a href="/private/profile/{ride?.created_by}">{owner.name} (Owner)</a>
 						{/await}
 
 						{#await data.supabase
 							.from('user_reviews')
 							.select('*')
-							.eq('user_id', ride?.created_by)
+							.eq('review_for', ride?.created_by)
+							.eq('created_by', data.user?.id)
 							.eq('trip_id', ride?.id)
 							.single()}
 							Loading...
@@ -402,20 +435,28 @@
 									<p>{exists.comment}</p>
 									<p class="text-sm text-gray-700">Rating: {exists.rating}</p>
 								</div>
+							{:else if data.user?.id === ride?.created_by}
+								<div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
+									<p class="font-bold">You can't review yourself</p>
+								</div>
 							{:else}
 								<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row items-center gap-2">
 									<input type="hidden" name="ride_id" value={ride?.id} />
 									<input type="hidden" name="user_id" value={ride?.created_by} />
 									<label class="flex flex-col">
 										<span class="text-sm text-gray-700">Rating (1 to 5):</span>
-										<input
-											name="rating"
-											type="number"
-											class="rounded border p-2"
-											min="1"
-											max="5"
-											placeholder="1-5"
-										/>
+										<input type="hidden" name="rating" bind:value={reviewvalue} />
+										<Ratings
+											bind:value={reviewvalue}
+											max={5}
+											min={1}
+											interactive
+											on:icon={iconClick}
+										>
+											<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
+											<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
+											<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+										</Ratings>
 									</label>
 									<label class="flex flex-col">
 										<span class="text-sm text-gray-700">Comment:</span>
@@ -437,13 +478,14 @@
 							{/if}
 						{/await}
 					</li>
-					{#each ride?.trip_passengers as passenger}
+					{#each ride?.trip_passengers as passenger, passenger_index}
 						<li>
-							{passenger?.name}
+							<a href="/private/profile/{passenger?.user_id}">{passenger?.name}</a>
 							{#await data.supabase
 								.from('user_reviews')
 								.select('*')
-								.eq('user_id', passenger?.user_id)
+								.eq('review_for', passenger?.user_id)
+								.eq('created_by', data.user?.id)
 								.eq('trip_id', ride?.id)
 								.single()}
 								Loading...
@@ -454,6 +496,10 @@
 										<p>{exists.comment}</p>
 										<p class="text-sm text-gray-700">Rating: {exists.rating}</p>
 									</div>
+								{:else if data.user?.id === passenger?.user_id}
+									<div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
+										<p class="font-bold">You can't review yourself</p>
+									</div>
 								{:else}
 									<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row items-center gap-2">
 										<input type="hidden" name="ride_id" value={ride?.id} />
@@ -461,13 +507,21 @@
 										<label class="flex flex-col">
 											<span class="text-sm text-gray-700">Rating (1 to 5):</span>
 											<input
+												type="hidden"
 												name="rating"
-												type="number"
-												class="rounded border p-2"
-												min="1"
-												max="5"
-												placeholder="1-5"
+												bind:value={reviewvalues[passenger_index]}
 											/>
+											<Ratings
+												bind:value={reviewvalues[passenger_index]}
+												max={5}
+												min={1}
+												interactive
+												on:icon={(event) => iconClickss(event, passenger_index)}
+											>
+												<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
+												<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
+												<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+											</Ratings>
 										</label>
 										<label class="flex flex-col">
 											<span class="text-sm text-gray-700">Comment:</span>

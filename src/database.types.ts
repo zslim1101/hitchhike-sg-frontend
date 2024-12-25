@@ -267,40 +267,50 @@ export type Database = {
 				Row: {
 					comment: string | null;
 					created_at: string;
+					created_by: string | null;
 					id: number;
 					rating: number | null;
+					review_for: string | null;
 					trip_id: number | null;
-					user_id: string | null;
 				};
 				Insert: {
 					comment?: string | null;
 					created_at?: string;
+					created_by?: string | null;
 					id?: number;
 					rating?: number | null;
+					review_for?: string | null;
 					trip_id?: number | null;
-					user_id?: string | null;
 				};
 				Update: {
 					comment?: string | null;
 					created_at?: string;
+					created_by?: string | null;
 					id?: number;
 					rating?: number | null;
+					review_for?: string | null;
 					trip_id?: number | null;
-					user_id?: string | null;
 				};
 				Relationships: [
+					{
+						foreignKeyName: 'user_reviews_created_by_fkey';
+						columns: ['created_by'];
+						isOneToOne: false;
+						referencedRelation: 'profiles';
+						referencedColumns: ['id'];
+					},
+					{
+						foreignKeyName: 'user_reviews_review_for_fkey';
+						columns: ['review_for'];
+						isOneToOne: false;
+						referencedRelation: 'profiles';
+						referencedColumns: ['id'];
+					},
 					{
 						foreignKeyName: 'user_reviews_trip_id_fkey';
 						columns: ['trip_id'];
 						isOneToOne: false;
 						referencedRelation: 'trips';
-						referencedColumns: ['id'];
-					},
-					{
-						foreignKeyName: 'user_reviews_user_id_fkey';
-						columns: ['user_id'];
-						isOneToOne: false;
-						referencedRelation: 'profiles';
 						referencedColumns: ['id'];
 					}
 				];

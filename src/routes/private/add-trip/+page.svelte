@@ -4,6 +4,21 @@
 	import { Autocomplete } from '@skeletonlabs/skeleton';
 	import type { AutocompleteOption } from '@skeletonlabs/skeleton';
 	import { LucideChevronLeft } from 'lucide-svelte';
+
+	import { Modal, getModalStore } from '@skeletonlabs/skeleton';
+	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
+
+	const modalStore = getModalStore();
+	const modal: ModalSettings = {
+		type: 'confirm',
+		// Data
+		title: 'Please Confirm',
+		body: 'Are you sure you wish to proceed?',
+		backdropClasses: 'bg-gray-600',
+		// TRUE if confirm pressed, FALSE if cancel pressed
+		response: (r: boolean) => console.log('response:', r)
+	};
+
 	// Form variables
 	let { data } = $props();
 
@@ -32,12 +47,24 @@
 
 	// Function to handle form submission
 	async function createTrip() {
+		const { data: similar_trips, error: error_similar_trips } = await data.supabase
+			.from('trips')
+			.select('*')
+			.eq('pickup_point', pickup_point_id)
+			.eq('destination', destination_id)
+			.not('status', 'eq', 'closed')
+			.single();
+
+		if (similar_trips) {
+			const confirmed = confirm('A similar trip already exists. Do you want to proceed?');
+			if (!confirmed) return;
+		}
 		const { data: trip, error } = await data.supabase
 			.from('trips')
 			.insert({
 				departure_time: time,
-				pickup_point: destination_id,
-				destination: pickup_point_id,
+				pickup_point: pickup_point_id,
+				destination: destination_id,
 				min_pass: minPassengers,
 				max_pass: maxPassengers,
 				current_passengers: 1,
