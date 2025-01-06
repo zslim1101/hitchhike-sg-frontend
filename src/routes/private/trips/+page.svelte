@@ -61,7 +61,6 @@
 			if (updateError) {
 				alert('Full');
 			} else {
-				// goto(`/private/trips/${ride.id}`);
 				// window.location.href = `/private/trips/${ride.id}`;
 				isjoiningaTrip = false;
 				return;
@@ -261,7 +260,7 @@
 		{/if}
 		<p class="font-bold">Other Trips</p>
 		{#if isjoiningaTrip}
-			<p>Joinging a trip</p>
+			<p>Joining a trip</p>
 		{/if}
 		{#if trips && trips.length > 0}
 			{#each trips as ride}
@@ -326,16 +325,17 @@
 								{:else}
 									<button
 										onclick={async () => {
-											handleUserJoin(ride);
+											await handleUserJoin(ride);
+											await new Promise((resolve) => setTimeout(resolve, 100));
+											await goto(`/private/trips/${ride.id}`);
 										}}
-										disabled={data.joined_trips?.trip_id === ride.id ||
+										disabled={(my_trips && my_trips.length > 0) ||
+											data.joined_trips !== null ||
+											// data.joined_trips?.trip_id === ride.id ||
 											ride.current_passengers === ride.max_pass}
 										class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700 disabled:bg-gray-300"
 									>
-										{data.joined_trips?.trip_id === ride.id ||
-										ride.current_passengers === ride.max_pass
-											? 'FULL'
-											: 'JOIN'}
+										{ride.current_passengers === ride.max_pass ? 'FULL' : 'JOIN'}
 									</button>
 								{/if}
 							</div>
