@@ -12,7 +12,7 @@ export const actions: Actions = {
 		const phone = formData.get('phone') as string;
 		const tg_username = formData.get('tg_username') as string;
 
-		if (!email || !password || !name || (!phone && !tg_username)) {
+		if (!email || !password || !name) {
 			redirect(303, '/auth/error');
 		}
 
