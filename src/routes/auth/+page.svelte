@@ -97,7 +97,7 @@
 				<!-- Register Form -->
 				<form method="POST" action="?/signup" class="space-y-6">
 					<div class="space-y-2">
-						<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+						<label for="email" class="block text-sm font-medium text-gray-700">Email <label class="inline text-sm font-medium text-gray-500 italic">(required)</label>
 						<input
 							name="email"
 							type="email"
@@ -108,7 +108,7 @@
 					</div>
 
 					<div class="space-y-2">
-						<label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+						<label for="password" class="block text-sm font-medium text-gray-700">Password <label class="inline text-sm font-medium text-gray-500 italic">(required)</label>
 						<input
 							name="password"
 							type="password"
@@ -119,7 +119,7 @@
 					</div>
 
 					<div class="space-y-2">
-						<label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+						<label for="name" class="block text-sm font-medium text-gray-700">Name <label class="inline text-sm font-medium text-gray-500 italic">(required)</label></label>
 						<input
 							name="name"
 							type="text"
@@ -130,12 +130,14 @@
 					</div>
 
 					<div class="space-y-2">
-						<label for="phone" class="block text-sm font-medium text-gray-700">Contact Info</label>
+						<label for="phone" class="block text-sm font-medium text-gray-700"
+							>Mobile Number</label
+						>
 						<input
 							name="phone"
 							type="tel"
 							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-							placeholder="Mobile number"
+							placeholder="+65XXXXXXXX"
 							oninput={validatePhoneAndTgUsername}
 						/>
 					</div>
