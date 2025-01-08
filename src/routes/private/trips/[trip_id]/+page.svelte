@@ -396,14 +396,16 @@
 				{/if}
 			</div>
 
-			<div class="mt-10 flex flex-row items-center gap-3">
-				<button
-					onclick={MarkTripComplete}
-					class="text-nowrap rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-					>Mark Trip Complete</button
-				>
-				<p>Warning: This will close the chat and mark the trip as complete</p>
-			</div>
+			{#if ride?.created_by === data.user?.id}
+				<div class="mt-10 flex flex-row items-center gap-3">
+					<button
+						onclick={MarkTripComplete}
+						class="text-nowrap rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+						>Mark Trip Complete</button
+					>
+					<p>Warning: This will close the chat and mark the trip as complete</p>
+				</div>
+			{/if}
 		{/if}
 
 		{#if ride?.status === 'closed'}
