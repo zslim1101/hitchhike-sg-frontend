@@ -89,19 +89,28 @@
 		<p class="font-bold">Current Trip</p>
 		{#if my_trips && my_trips.length > 0}
 			{#each my_trips as ride}
-				<div class="rounded-lg bg-white p-4 shadow">
-					<div class="mb-1 flex items-center space-x-2 text-gray-700">
-						<span class="text-sm font-bold">Ride Status:</span>
-						<span
-							class={'text-sm font-bold uppercase ' +
-								(ride.status === 'available'
-									? 'text-green-500'
-									: ride.status === 'chat-opened'
-										? 'text-blue-500'
-										: 'text-red-500')}
-						>
-							{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
-						</span>
+				<div class="rounded-lg border border-green-700 bg-white p-4 shadow">
+					<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">
+						<div class="flex flex-col space-x-2 sm:flex-row">
+							<span class="text-sm font-bold">Ride Status:</span>
+							<span
+								class={'text-sm font-bold uppercase ' +
+									(ride.status === 'available'
+										? 'text-green-500'
+										: ride.status === 'chat-opened'
+											? 'text-blue-500'
+											: 'text-red-500')}
+							>
+								{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
+							</span>
+						</div>
+						<div class="flex flex-col justify-start">
+							<div class="flex w-full flex-row justify-center bg-blue-100">
+								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+									{formatHumanReadable(ride?.departure_time)}
+								</p>
+							</div>
+						</div>
 					</div>
 					<div class="flex flex-row items-center justify-between">
 						<!-- Pickup and Destination Points -->
@@ -127,11 +136,7 @@
 
 						<!-- Time and Join Button -->
 						<div class="flex flex-col justify-between space-y-10">
-							<div class="flex w-full flex-row justify-center bg-blue-100">
-								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
-									{formatHumanReadable(ride.departure_time)}
-								</p>
-							</div>
+							<div></div>
 
 							<div class="flex flex-row justify-end space-x-2">
 								<div class="flex items-center space-x-1 text-gray-700">
@@ -166,19 +171,28 @@
 				<p>Loading..</p>
 			{:then { data: trip_info }}
 				{#if trip_info}
-					<div class="rounded-lg bg-white p-4 shadow">
-						<div class="mb-1 flex items-center space-x-2 text-gray-700">
-							<span class="text-sm font-bold">Ride Status:</span>
-							<span
-								class={'text-sm font-bold uppercase ' +
-									(trip_info.status === 'available'
-										? 'text-green-500'
-										: trip_info.status === 'chat-opened'
-											? 'text-blue-500'
-											: 'text-red-500')}
-							>
-								{trip_info.status === 'chat-opened' ? 'Chat has started' : trip_info.status}
-							</span>
+					<div class="rounded-lg border border-green-700 bg-white p-4 shadow">
+						<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">
+							<div class="flex flex-col space-x-2 sm:flex-row">
+								<span class="text-sm font-bold">Ride Status:</span>
+								<span
+									class={'text-sm font-bold uppercase ' +
+										(trip_info.status === 'available'
+											? 'text-green-500'
+											: trip_info.status === 'chat-opened'
+												? 'text-blue-500'
+												: 'text-red-500')}
+								>
+									{trip_info.status === 'chat-opened' ? 'Chat has started' : trip_info.status}
+								</span>
+							</div>
+							<div class="flex flex-col justify-start">
+								<div class="flex w-full flex-row justify-center bg-blue-100">
+									<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+										{formatHumanReadable(trip_info?.departure_time)}
+									</p>
+								</div>
+							</div>
 						</div>
 						<div class="flex flex-row items-center justify-between">
 							<!-- Pickup and Destination Points -->
@@ -206,11 +220,7 @@
 
 							<!-- Time and Join Button -->
 							<div class="flex flex-col justify-between space-y-10">
-								<div class="flex w-full flex-row justify-center bg-blue-100">
-									<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
-										{formatHumanReadable(trip_info.departure_time)}
-									</p>
-								</div>
+								<div></div>
 								<div class="flex flex-row justify-end space-x-2">
 									<div class="flex items-center space-x-1 text-gray-700">
 										<span class="flex flex-row gap-1 font-bold"
@@ -265,18 +275,27 @@
 		{#if trips && trips.length > 0}
 			{#each trips as ride}
 				<div class="rounded-lg bg-white p-4 shadow">
-					<div class="mb-1 flex items-center space-x-2 text-gray-700">
-						<span class="text-sm font-bold">Ride Status:</span>
-						<span
-							class={'text-sm font-bold uppercase ' +
-								(ride.status === 'available'
-									? 'text-green-500'
-									: ride.status === 'chat-opened'
-										? 'text-blue-500'
-										: 'text-red-500')}
-						>
-							{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
-						</span>
+					<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">
+						<div class="flex flex-col space-x-2 sm:flex-row">
+							<span class="text-sm font-bold">Ride Status:</span>
+							<span
+								class={'text-sm font-bold uppercase ' +
+									(ride.status === 'available'
+										? 'text-green-500'
+										: ride.status === 'chat-opened'
+											? 'text-blue-500'
+											: 'text-red-500')}
+							>
+								{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
+							</span>
+						</div>
+						<div class="flex flex-col justify-start">
+							<div class="flex w-full flex-row justify-center bg-blue-100">
+								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+									{formatHumanReadable(ride?.departure_time)}
+								</p>
+							</div>
+						</div>
 					</div>
 					<div class="flex flex-row items-center justify-between">
 						<!-- Pickup and Destination Points -->
@@ -302,14 +321,10 @@
 
 						<!-- Time and Join Button -->
 						<div class="flex flex-col justify-between space-y-10">
-							<div class="flex w-full flex-row justify-center bg-blue-100">
-								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
-									{formatHumanReadable(ride.departure_time)}
-								</p>
-							</div>
+							<div></div>
 							<div class="flex flex-row justify-end space-x-2">
-								<div class="flex items-center space-x-1 text-gray-700">
-									<span class="flex flex-row gap-1 font-bold"
+								<div class="flex flex-col items-center justify-end space-x-1 text-gray-700">
+									<span class="mb-1 flex flex-row gap-1 font-bold"
 										><div class="flex flex-col justify-end">
 											<p class="mt-1">{ride.current_passengers}/{ride.max_pass}</p>
 										</div>
@@ -323,20 +338,28 @@
 								{#if data.joined_trips?.trip_id === ride.id}
 									<p>Joined</p>
 								{:else}
-									<button
-										onclick={async () => {
-											await handleUserJoin(ride);
-											await new Promise((resolve) => setTimeout(resolve, 100));
-											await goto(`/private/trips/${ride.id}`);
-										}}
-										disabled={(my_trips && my_trips.length > 0) ||
-											data.joined_trips !== null ||
-											// data.joined_trips?.trip_id === ride.id ||
-											ride.current_passengers === ride.max_pass}
-										class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700 disabled:bg-gray-300"
-									>
-										{ride.current_passengers === ride.max_pass ? 'FULL' : 'JOIN'}
-									</button>
+									<div class="flex flex-col">
+										<button
+											class="mb-1 rounded border border-cyan-600 bg-white px-4 py-2 text-cyan-800 hover:bg-cyan-500 hover:text-white disabled:bg-gray-300"
+											onclick={() => {
+												goto(`/private/trips/${ride.id}`);
+											}}>VIEW</button
+										>
+										<button
+											onclick={async () => {
+												await handleUserJoin(ride);
+												await new Promise((resolve) => setTimeout(resolve, 100));
+												await goto(`/private/trips/${ride.id}`);
+											}}
+											disabled={(my_trips && my_trips.length > 0) ||
+												data.joined_trips !== null ||
+												// data.joined_trips?.trip_id === ride.id ||
+												ride.current_passengers === ride.max_pass}
+											class="rounded border border-teal-600 bg-teal-600 px-4 py-2 font-bold text-white hover:bg-white hover:text-teal-600 disabled:bg-gray-300"
+										>
+											{ride.current_passengers === ride.max_pass ? 'FULL' : 'JOIN'}
+										</button>
+									</div>
 								{/if}
 							</div>
 						</div>

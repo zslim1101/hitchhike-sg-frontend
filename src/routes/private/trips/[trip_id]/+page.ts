@@ -5,6 +5,8 @@ export const load = (async ({ parent, params, depends }) => {
 	depends('trips:single-trip');
 	const { supabase, user } = await parent();
 
+	let HAS_JOINED_TRIP = false;
+
 	const { data: if_owns_trip } = await supabase
 		.from('trips')
 		.select('*')
@@ -23,8 +25,10 @@ export const load = (async ({ parent, params, depends }) => {
 			.single();
 		if (if_join_the_trip) {
 			//do nothing
+			HAS_JOINED_TRIP = true;
 		} else {
-			redirect(301, '/private/trips');
+			// redirect(301, '/private/trips');
+			HAS_JOINED_TRIP = false;
 		}
 	}
 
@@ -42,5 +46,5 @@ export const load = (async ({ parent, params, depends }) => {
 		.eq('trip_id', params.trip_id)
 		.order('created_at', { ascending: false });
 
-	return { my_trip, messages };
+	return { my_trip, messages, HAS_JOINED_TRIP };
 }) satisfies PageLoad;

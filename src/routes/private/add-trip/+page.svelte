@@ -34,7 +34,7 @@
 	}
 	let values = $state([2, 3]);
 	let min = 2;
-	let max = 8;
+	let max = 6;
 	let gap = 0;
 
 	let time: string = $state(getLocalDateTime());

@@ -6,8 +6,7 @@
 		LucideCircleUser,
 		LucideMapPin,
 		LucideStar,
-		LucideStarHalf,
-		LucideStarOff
+		LucideStarHalf
 	} from 'lucide-svelte';
 	import { Ratings } from '@skeletonlabs/skeleton';
 	let { data }: { data: PageData } = $props();
@@ -23,9 +22,9 @@
 	let newMessage = $state('');
 	let isLoading = writable(false);
 
-	let reviewvalue = $state(1);
+	let reviewvalue = $state(0);
 
-	let reviewvalues = $state([1, 1, 1, 1, 1, 1, 1, 1]);
+	let reviewvalues = $state([0, 0, 0, 0, 0, 0, 0, 0]);
 
 	onMount(() => {
 		const messagesChannel = data.supabase
@@ -146,6 +145,10 @@
 	};
 
 	const DeleteTrip = async () => {
+		const confirmed = confirm(
+			'Are you sure you want to delete this trip? This action cannot be undone.'
+		);
+		if (!confirmed) return;
 		const { error: trip_error } = await data.supabase.from('trips').delete().eq('id', ride?.id);
 		if (trip_error) {
 		} else {
@@ -154,6 +157,9 @@
 	};
 
 	const MarkTripComplete = async () => {
+		const confirmed = confirm('Are you sure you want to mark this trip as complete?');
+		if (!confirmed) return;
+
 		const { error: trip_error } = await data.supabase
 			.from('trips')
 			.update({ status: 'closed' })
@@ -233,6 +239,39 @@
 			}
 		};
 	}
+
+	const handleUserJoin = async (ride) => {
+		if (ride?.current_passengers > ride.max_pass) {
+			alert('full');
+			return;
+		}
+
+		const { error } = await data.supabase.from('trip_passengers').insert({
+			trip_id: ride.id,
+			user_id: data.user?.id,
+			name: data.user?.user_metadata.name
+		});
+
+		if (error) {
+			alert('You already joined');
+		} else {
+			let status = 'available';
+			if (ride?.current_passengers + 1 === ride.max_pass) {
+				status = 'chat-opened';
+			}
+
+			const { error: updateError } = await data.supabase
+				.from('trips')
+				.update({ current_passengers: ride?.current_passengers + 1, status })
+				.eq('id', ride.id);
+
+			if (updateError) {
+				alert('Full');
+			} else {
+				return;
+			}
+		}
+	};
 </script>
 
 <div>
@@ -242,19 +281,43 @@
 			Return</a
 		>
 	</div>
+
+	{#if !data.HAS_JOINED_TRIP}
+		<div class="rounded border border-yellow-500 bg-yellow-100 p-3">
+			<div class="flex flex-row items-center justify-between align-middle">
+				You haven't joined this trip yet.
+				<button
+					onclick={() => handleUserJoin(data.my_trip)}
+					class=" rounded bg-pink-400 px-3 py-2 text-white hover:bg-pink-600"
+				>
+					JOIN TRIP
+				</button>
+			</div>
+		</div>
+	{/if}
+
 	<div class="container m-1 mx-auto w-full bg-white p-4 shadow">
-		<div class="mb-3 flex items-center space-x-2 text-gray-700">
-			<span class="text-sm font-bold">Ride Status:</span>
-			<span
-				class={'text-sm font-bold uppercase ' +
-					(ride.status === 'available'
-						? 'text-green-500'
-						: ride.status === 'chat-opened'
-							? 'text-blue-500'
-							: 'text-red-500')}
-			>
-				{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
-			</span>
+		<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">
+			<div class="flex flex-col space-x-2 sm:flex-row">
+				<span class="text-sm font-bold">Ride Status:</span>
+				<span
+					class={'text-sm font-bold uppercase ' +
+						(ride.status === 'available'
+							? 'text-green-500'
+							: ride.status === 'chat-opened'
+								? 'text-blue-500'
+								: 'text-red-500')}
+				>
+					{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
+				</span>
+			</div>
+			<div class="flex flex-col justify-start">
+				<div class="flex w-full flex-row justify-center bg-blue-100">
+					<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+						{formatHumanReadable(ride?.departure_time)}
+					</p>
+				</div>
+			</div>
 		</div>
 		<div class="flex flex-row items-center justify-between rounded-lg">
 			<!-- Pickup and Destination Points -->
@@ -279,13 +342,6 @@
 			</div>
 
 			<!-- Time and Join Button -->
-			<div class="flex flex-col justify-start">
-				<div class="flex w-full flex-row justify-center bg-blue-100">
-					<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
-						{formatHumanReadable(ride?.departure_time)}
-					</p>
-				</div>
-			</div>
 		</div>
 		<div class="flex flex-col space-y-4">
 			<div class="flex flex-row justify-end space-x-2">
@@ -307,7 +363,7 @@
 			<!-- List of passengers -->
 			<div class="flex flex-col space-y-2">
 				<h2 class="text-lg font-bold">Passengers:</h2>
-				<ul class="ml-4 list-none space-y-2">
+				<ul class="list-none space-y-2">
 					<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
 						<div class="flex items-center justify-between">
 							<div>
@@ -379,22 +435,24 @@
 				</ul>
 			</div>
 
-			<div class="mt-10 flex flex-row items-center gap-3">
-				{#if ride?.created_by === data.user?.id}
-					<button
-						onclick={DeleteTrip}
-						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-						>Cancel Trip</button
-					>
-					<p>Warning: Other users will be removed from the trip</p>
-				{:else}
-					<button
-						onclick={LeaveTrip}
-						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
-						>Leave Trip</button
-					>
-				{/if}
-			</div>
+			{#if data.HAS_JOINED_TRIP}
+				<div class="mt-10 flex flex-row items-center gap-3">
+					{#if ride?.created_by === data.user?.id}
+						<button
+							onclick={DeleteTrip}
+							class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+							>Cancel Trip</button
+						>
+						<p>Warning: Other users will be removed from the trip</p>
+					{:else}
+						<button
+							onclick={LeaveTrip}
+							class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
+							>Leave Trip</button
+						>
+					{/if}
+				</div>
+			{/if}
 
 			{#if ride?.created_by === data.user?.id}
 				<div class="mt-10 flex flex-row items-center gap-3">
@@ -410,16 +468,18 @@
 
 		{#if ride?.status === 'closed'}
 			<div class="mt-5 bg-gray-100 p-4">
-				<p>Review Users:</p>
+				<p class="text-2xl font-bold">Review Users:</p>
 			</div>
-			<div class="flex flex-col space-y-2">
+			<div class=" flex flex-col space-y-2">
 				<h2 class="text-lg font-bold">Passengers:</h2>
-				<ul class="ml-4 list-disc">
-					<li>
+				<ul class="list-none space-y-6">
+					<li class="my-2">
 						{#await data.supabase.from('profiles').select('*').eq('id', ride?.created_by).single()}
 							Loading...
 						{:then { data: owner }}
-							<a href="/private/profile/{ride?.created_by}">{owner.name} (Owner)</a>
+							<a class="text-lg font-bold" href="/private/profile/{ride?.created_by}"
+								>{owner?.name} (Owner)</a
+							>
 						{/await}
 
 						{#await data.supabase
@@ -432,50 +492,59 @@
 							Loading...
 						{:then { data: exists }}
 							{#if exists}
-								<div class="m-2 flex flex-col space-y-2 border p-2">
+								<div
+									class="m-2 flex flex-col justify-start space-y-2 rounded-lg border border-purple-700 p-2"
+								>
 									<p class="font-bold">Your review:</p>
+									<Ratings value={exists?.rating || 0} max={5} min={1}>
+										<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
+										<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
+										<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+									</Ratings>
 									<p>{exists.comment}</p>
-									<p class="text-sm text-gray-700">Rating: {exists.rating}</p>
+									<!-- <p class="text-sm text-gray-700">Rating: {exists.rating}</p> -->
 								</div>
 							{:else if data.user?.id === ride?.created_by}
-								<div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
-									<p class="font-bold">You can't review yourself</p>
-								</div>
+								<div></div>
+								<!-- <div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
+								<p class="font-bold">You can't review yourself</p>
+							</div> -->
 							{:else}
-								<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row items-center gap-2">
-									<input type="hidden" name="ride_id" value={ride?.id} />
-									<input type="hidden" name="user_id" value={ride?.created_by} />
-									<label class="flex flex-col">
-										<span class="text-sm text-gray-700">Rating (1 to 5):</span>
-										<input type="hidden" name="rating" bind:value={reviewvalue} />
-										<Ratings
-											bind:value={reviewvalue}
-											max={5}
-											min={1}
-											interactive
-											on:icon={iconClick}
-										>
-											<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
-											<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
-											<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
-										</Ratings>
-									</label>
-									<label class="flex flex-col">
-										<span class="text-sm text-gray-700">Comment:</span>
-										<input
-											name="comment"
-											type="text"
-											class="rounded border p-2"
-											placeholder="Type a comment"
-										/>
-									</label>
+								<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row justify-start gap-2">
+									<div class="flex flex-col rounded-xl border border-pink-500 p-3 drop-shadow-xl">
+										<span class="text-md mb-2 font-semibold">Create your review:</span>
+										<input type="hidden" name="ride_id" value={ride?.id} />
+										<input type="hidden" name="user_id" value={ride?.created_by} />
+										<label class="mb-2 flex flex-col">
+											<input type="hidden" name="rating" bind:value={reviewvalue} />
+											<Ratings
+												bind:value={reviewvalue}
+												max={5}
+												min={1}
+												interactive
+												on:icon={iconClick}
+											>
+												<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
+												<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
+												<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+											</Ratings>
+										</label>
+										<label class="mb-2 flex flex-col">
+											<textarea
+												name="comment"
+												class="rounded border p-2"
+												placeholder="Type a review"
+												rows="4"
+											></textarea>
+										</label>
 
-									<button
-										type="submit"
-										class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-									>
-										Submit
-									</button>
+										<button
+											type="submit"
+											class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+										>
+											Submit
+										</button>
+									</div>
 								</form>
 							{/if}
 						{/await}
@@ -493,53 +562,63 @@
 								Loading...
 							{:then { data: exists }}
 								{#if exists}
-									<div class="m-2 flex flex-col space-y-2 border p-2">
+									<div
+										class="m-2 flex flex-col justify-start space-y-2 rounded-lg border border-purple-700 p-2"
+									>
 										<p class="font-bold">Your review:</p>
+										<Ratings value={exists?.rating || 0} max={5} min={1}>
+											<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
+											<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
+											<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+										</Ratings>
 										<p>{exists.comment}</p>
-										<p class="text-sm text-gray-700">Rating: {exists.rating}</p>
+										<!-- <p class="text-sm text-gray-700">Rating: {exists.rating}</p> -->
 									</div>
 								{:else if data.user?.id === passenger?.user_id}
-									<div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
+									<div></div>
+									<!-- <div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
 										<p class="font-bold">You can't review yourself</p>
-									</div>
+									</div> -->
 								{:else}
-									<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row items-center gap-2">
-										<input type="hidden" name="ride_id" value={ride?.id} />
-										<input type="hidden" name="user_id" value={passenger?.user_id} />
-										<label class="flex flex-col">
-											<span class="text-sm text-gray-700">Rating (1 to 5):</span>
-											<input
-												type="hidden"
-												name="rating"
-												bind:value={reviewvalues[passenger_index]}
-											/>
-											<Ratings
-												bind:value={reviewvalues[passenger_index]}
-												max={5}
-												min={1}
-												interactive
-												on:icon={(event) => iconClickss(event, passenger_index)}
+									<form
+										onsubmit={handleSubmitReview}
+										class="mt-2 flex flex-row justify-start gap-2"
+									>
+										<div class="flex flex-col rounded-xl border border-pink-500 p-3 drop-shadow-xl">
+											<span class="text-md mb-2 font-semibold">Create your review:</span>
+											<input type="hidden" name="ride_id" value={ride?.id} />
+											<input type="hidden" name="user_id" value={passenger?.user_id} />
+											<label class="mb-2 flex flex-col">
+												<input type="hidden" name="rating" bind:value={reviewvalue} />
+												<Ratings
+													bind:value={reviewvalue}
+													max={5}
+													min={1}
+													interactive
+													on:icon={iconClick}
+												>
+													<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
+													<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
+													<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment
+													>
+												</Ratings>
+											</label>
+											<label class="mb-2 flex flex-col">
+												<textarea
+													name="comment"
+													class="rounded border p-2"
+													placeholder="Type a review"
+													rows="4"
+												></textarea>
+											</label>
+
+											<button
+												type="submit"
+												class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
 											>
-												<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
-												<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
-												<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
-											</Ratings>
-										</label>
-										<label class="flex flex-col">
-											<span class="text-sm text-gray-700">Comment:</span>
-											<input
-												name="comment"
-												type="text"
-												class="rounded border p-2"
-												placeholder="Type a comment"
-											/>
-										</label>
-										<button
-											type="submit"
-											class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-										>
-											Submit
-										</button>
+												Submit
+											</button>
+										</div>
 									</form>
 								{/if}
 							{/await}
@@ -547,7 +626,7 @@
 					{/each}
 				</ul>
 			</div>
-		{:else}
+		{:else if data.HAS_JOINED_TRIP}
 			<div>
 				<div class="space-y-4 p-4">
 					<h2 class="text-center text-2xl font-semibold text-gray-800">Instant Chat</h2>
@@ -586,6 +665,9 @@
 									</div>
 								{/if}
 							{/each}
+							{#if $messages.length === 0}
+								<p>Start the conversation here</p>
+							{/if}
 						</div>
 					{/if}
 

@@ -12,10 +12,7 @@
 				<p class="block font-bold">Name</p>
 				<p class="mt-1">{data?.profile?.name}</p>
 			</div>
-			<!-- <div>
-				<p class="block font-bold">Email</p>
-				<p class="mt-1">{data.user?.email}</p>
-			</div> -->
+
 			<div>
 				<p class="block font-bold">Phone</p>
 				<p class="mt-1">{data?.profile?.phone ?? 'No phone number'}</p>

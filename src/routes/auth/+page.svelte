@@ -2,6 +2,7 @@
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	export let form;
+
 	let isLoginView = true; // Default view is Login
 	let tabSet: number = 0;
 	// Function to switch the view based on the hash in URL
@@ -84,42 +85,58 @@
 						/>
 					</div>
 
-					<div class="flex justify-center">
+					<div class="flex flex-col justify-center">
 						<button
 							type="submit"
 							class="w-full rounded-lg bg-blue-600 py-2 font-medium text-white hover:bg-blue-700"
 						>
 							Login
 						</button>
+						<div class="mt-3 text-center">
+							<a href="/auth/reset-password" class="text-blue-500 hover:underline"
+								>Forgot Password?</a
+							>
+						</div>
 					</div>
 				</form>
 			{:else if tabSet === 1}
 				<!-- Register Form -->
 				<form method="POST" action="?/signup" class="space-y-6">
 					<div class="space-y-2">
-						<label for="email" class="block text-sm font-medium text-gray-700">Email <label class="inline text-sm font-medium text-gray-500 italic">(required)</label>
-						<input
-							name="email"
-							type="email"
-							placeholder="your@email.com"
-							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-							required
-						/>
+						<label for="email" class="block text-sm font-medium text-gray-700"
+							>Email <label class="inline text-sm font-medium italic text-gray-500"
+								>(required)</label
+							>
+							<input
+								name="email"
+								type="email"
+								placeholder="your@email.com"
+								class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+								required
+							/>
+						</label>
 					</div>
 
 					<div class="space-y-2">
-						<label for="password" class="block text-sm font-medium text-gray-700">Password <label class="inline text-sm font-medium text-gray-500 italic">(required)</label>
-						<input
-							name="password"
-							type="password"
-							placeholder="Your password"
-							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
-							required
-						/>
+						<label for="password" class="block text-sm font-medium text-gray-700"
+							>Password <label class="inline text-sm font-medium italic text-gray-500"
+								>(required)</label
+							>
+							<input
+								name="password"
+								type="password"
+								placeholder="Your password"
+								class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+								required
+							/>
+						</label>
 					</div>
 
 					<div class="space-y-2">
-						<label for="name" class="block text-sm font-medium text-gray-700">Name <label class="inline text-sm font-medium text-gray-500 italic">(required)</label></label>
+						<label for="name" class="block text-sm font-medium text-gray-700"
+							>Name <label class="inline text-sm font-medium italic text-gray-500">(required)</label
+							></label
+						>
 						<input
 							name="name"
 							type="text"
@@ -130,9 +147,7 @@
 					</div>
 
 					<div class="space-y-2">
-						<label for="phone" class="block text-sm font-medium text-gray-700"
-							>Mobile Number</label
-						>
+						<label for="phone" class="block text-sm font-medium text-gray-700">Mobile Number</label>
 						<input
 							name="phone"
 							type="tel"
