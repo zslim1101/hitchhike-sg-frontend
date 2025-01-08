@@ -7,7 +7,7 @@
     <!-- Navbar -->
     <nav class="bg-blue-500 p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="{$page.url.href}" class="text-white text-xl font-bold">Carpool SG</a>
+            <a href="{$page.url.href}" class="text-white text-xl font-bold">Carpool</a>
             <div class="space-x-4">
                 <a href="{$page.url.href}auth#register" class="text-white">Register</a>
                 <a href="{$page.url.href}auth#login" class="text-white">Login</a>
@@ -17,7 +17,7 @@
 
     <!-- Hero Section -->
     <section class="bg-blue-700 text-white py-20 text-center">
-        <h1 class="text-5xl font-bold">Welcome to Carpool SG</h1>
+        <h1 class="text-5xl font-bold">Welcome to Carpool</h1>
         <p class="mt-4 text-xl">Connecting commuters for a smarter, greener way to travel</p>
         <div class="mt-8">
             <a href="{$page.url.href}auth#register" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg mr-4">Register</a>
@@ -28,9 +28,9 @@
     <!-- About Section -->
     <section class="py-16 bg-white text-center">
         <div class="container mx-auto">
-            <h2 class="text-3xl font-semibold">About Carpool SG</h2>
+            <h2 class="text-3xl font-semibold">About Carpool</h2>
             <p class="mt-4 text-lg max-w-2xl mx-auto">
-                Carpool SG is a platform that connects commuters across Singapore, helping you save on transport costs while reducing your carbon footprint. Join the community and start carpooling today!
+                Carpool is a platform that connects commuters across Singapore, helping you save on transport costs while reducing your carbon footprint. Join the community and start carpooling today!
             </p>
         </div>
     </section>
@@ -56,7 +56,7 @@
     <!-- Footer -->
     <div class="bg-blue-500 text-white py-6 text-center">
       <div class="flex flex-row justify-center gap-3">
-        <p>2024 Carpool SG. All rights reserved. </p>
+        <p>2025 Carpool. All rights reserved. </p>
       </div>
     </div>
 </div>
