@@ -282,7 +282,7 @@
 		>
 	</div>
 
-	{#if !data.HAS_JOINED_TRIP}
+	{#if !data.HAS_JOINED_TRIP && !ride?.status === 'closed'}
 		<div class="rounded border border-yellow-500 bg-yellow-100 p-3">
 			<div class="flex flex-row items-center justify-between align-middle">
 				You haven't joined this trip yet.
@@ -435,7 +435,7 @@
 				</ul>
 			</div>
 
-			{#if data.HAS_JOINED_TRIP}
+			{#if data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id}
 				<div class="mt-10 flex flex-row items-center gap-3">
 					{#if ride?.created_by === data.user?.id}
 						<button
