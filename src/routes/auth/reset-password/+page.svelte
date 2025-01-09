@@ -8,7 +8,7 @@
 	async function resetPassword() {
 		if (email) {
 			const { error } = await data.supabase.auth.resetPasswordForEmail(email, {
-				redirectTo: window.location.origin + '/auth/confirm'
+				redirectTo: window.location.origin + '/auth/confirm-reset'
 			});
 			if (error) {
 				alert(error.message);
