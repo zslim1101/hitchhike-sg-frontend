@@ -98,15 +98,15 @@
 									(ride.status === 'available'
 										? 'text-green-500'
 										: ride.status === 'chat-opened'
-											? 'text-blue-500'
+											? 'text-secondary-500'
 											: 'text-red-500')}
 							>
 								{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
 							</span>
 						</div>
 						<div class="flex flex-col justify-start">
-							<div class="flex w-full flex-row justify-center bg-blue-100">
-								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+							<div class="flex w-full flex-row justify-center bg-secondary-100">
+								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600">
 									{formatHumanReadable(ride?.departure_time)}
 								</p>
 							</div>
@@ -155,7 +155,8 @@
 									onclick={() => {
 										goto(`/private/trips/${ride.id}`);
 									}}
-									class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700">VIEW</button
+									class="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
+									>VIEW</button
 								>
 							</div>
 						</div>
@@ -180,15 +181,17 @@
 										(trip_info.status === 'available'
 											? 'text-green-500'
 											: trip_info.status === 'chat-opened'
-												? 'text-blue-500'
+												? 'text-secondary-500'
 												: 'text-red-500')}
 								>
 									{trip_info.status === 'chat-opened' ? 'Chat has started' : trip_info.status}
 								</span>
 							</div>
 							<div class="flex flex-col justify-start">
-								<div class="flex w-full flex-row justify-center bg-blue-100">
-									<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+								<div class="flex w-full flex-row justify-center bg-secondary-100">
+									<p
+										class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600"
+									>
 										{formatHumanReadable(trip_info?.departure_time)}
 									</p>
 								</div>
@@ -237,7 +240,8 @@
 										onclick={() => {
 											goto(`/private/trips/${trip_info.id}`);
 										}}
-										class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700">VIEW</button
+										class="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
+										>VIEW</button
 									>
 								</div>
 							</div>
@@ -249,7 +253,7 @@
 						<p class="text-gray-500">Either join an existing trip or create a new one</p>
 						<a
 							href="/private/add-trip"
-							class="mt-4 rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+							class="mt-4 rounded bg-secondary-500 px-4 py-2 text-white transition hover:bg-secondary-600"
 						>
 							Create a Trip
 						</a>
@@ -262,7 +266,7 @@
 				<p class="text-gray-500">Either join an existing trip or create a new one</p>
 				<a
 					href="/private/add-trip"
-					class="mt-4 rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+					class="mt-4 rounded bg-secondary-500 px-4 py-2 text-white transition hover:bg-secondary-600"
 				>
 					Create a Trip
 				</a>
@@ -283,15 +287,15 @@
 									(ride.status === 'available'
 										? 'text-green-500'
 										: ride.status === 'chat-opened'
-											? 'text-blue-500'
+											? 'text-secondary-500'
 											: 'text-red-500')}
 							>
 								{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
 							</span>
 						</div>
 						<div class="flex flex-col justify-start">
-							<div class="flex w-full flex-row justify-center bg-blue-100">
-								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+							<div class="flex w-full flex-row justify-center bg-secondary-100">
+								<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600">
 									{formatHumanReadable(ride?.departure_time)}
 								</p>
 							</div>
@@ -355,7 +359,7 @@
 												data.joined_trips !== null ||
 												// data.joined_trips?.trip_id === ride.id ||
 												ride.current_passengers === ride.max_pass}
-											class="rounded border border-teal-600 bg-teal-600 px-4 py-2 font-bold text-white hover:bg-white hover:text-teal-600 disabled:bg-gray-300"
+											class="rounded border border-primary-600 bg-primary-600 px-4 py-2 font-bold text-white hover:bg-white hover:text-primary-600 disabled:bg-gray-300"
 										>
 											{ride.current_passengers === ride.max_pass ? 'FULL' : 'JOIN'}
 										</button>
@@ -391,7 +395,7 @@
 		{:else}
 		<a
 			href="/private/add-trip"
-			class="flex flex-row justify-center gap-1 rounded bg-blue-500 px-4 py-3 font-bold text-white transition hover:bg-blue-600"
+			class="flex flex-row justify-center gap-1 rounded bg-secondary-500 px-4 py-3 font-bold text-white transition hover:bg-secondary-600"
 		>
 			<LucidePlus />
 			ADD NEW TRIP

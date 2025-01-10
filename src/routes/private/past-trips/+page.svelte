@@ -46,7 +46,7 @@
 							(trips.status === 'available'
 								? 'text-green-500'
 								: trips.status === 'chat-opened'
-									? 'text-blue-500'
+									? 'text-secondary-500'
 									: 'text-red-500')}
 					>
 						{trips.status === 'chat-opened' ? 'Chat has started' : trips.status}
@@ -76,8 +76,8 @@
 
 					<!-- Time and Join Button -->
 					<div class="flex flex-col justify-between space-y-10">
-						<div class="flex w-full flex-row justify-center bg-blue-100">
-							<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+						<div class="flex w-full flex-row justify-center bg-secondary-100">
+							<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600">
 								{formatHumanReadable(trips.departure_time)}
 							</p>
 						</div>
@@ -99,7 +99,8 @@
 								onclick={() => {
 									goto(`/private/trips/${trips.id}`);
 								}}
-								class="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700">VIEW</button
+								class="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
+								>VIEW</button
 							>
 						</div>
 					</div>

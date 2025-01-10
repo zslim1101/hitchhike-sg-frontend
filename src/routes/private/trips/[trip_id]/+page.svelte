@@ -288,7 +288,7 @@
 				You haven't joined this trip yet.
 				<button
 					onclick={() => handleUserJoin(data.my_trip)}
-					class=" rounded bg-pink-400 px-3 py-2 text-white hover:bg-pink-600"
+					class=" rounded bg-primary-400 px-3 py-2 text-white hover:bg-primary-600"
 				>
 					JOIN TRIP
 				</button>
@@ -305,15 +305,15 @@
 						(ride.status === 'available'
 							? 'text-green-500'
 							: ride.status === 'chat-opened'
-								? 'text-blue-500'
+								? 'text-secondary-500'
 								: 'text-red-500')}
 				>
 					{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
 				</span>
 			</div>
 			<div class="flex flex-col justify-start">
-				<div class="flex w-full flex-row justify-center bg-blue-100">
-					<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-blue-600">
+				<div class="flex w-full flex-row justify-center bg-secondary-100">
+					<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600">
 						{formatHumanReadable(ride?.departure_time)}
 					</p>
 				</div>
@@ -511,7 +511,9 @@
 							</div> -->
 							{:else}
 								<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row justify-start gap-2">
-									<div class="flex flex-col rounded-xl border border-pink-500 p-3 drop-shadow-xl">
+									<div
+										class="flex flex-col rounded-xl border border-primary-500 p-3 drop-shadow-xl"
+									>
 										<span class="text-md mb-2 font-semibold">Create your review:</span>
 										<input type="hidden" name="ride_id" value={ride?.id} />
 										<input type="hidden" name="user_id" value={ride?.created_by} />
@@ -540,7 +542,7 @@
 
 										<button
 											type="submit"
-											class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+											class="rounded bg-secondary-500 px-4 py-2 text-white hover:bg-secondary-600"
 										>
 											Submit
 										</button>
@@ -584,7 +586,9 @@
 										onsubmit={handleSubmitReview}
 										class="mt-2 flex flex-row justify-start gap-2"
 									>
-										<div class="flex flex-col rounded-xl border border-pink-500 p-3 drop-shadow-xl">
+										<div
+											class="flex flex-col rounded-xl border border-primary-500 p-3 drop-shadow-xl"
+										>
 											<span class="text-md mb-2 font-semibold">Create your review:</span>
 											<input type="hidden" name="ride_id" value={ride?.id} />
 											<input type="hidden" name="user_id" value={passenger?.user_id} />
@@ -614,7 +618,7 @@
 
 											<button
 												type="submit"
-												class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+												class="rounded bg-secondary-500 px-4 py-2 text-white hover:bg-secondary-600"
 											>
 												Submit
 											</button>
@@ -676,12 +680,12 @@
 						<input
 							bind:value={newMessage}
 							placeholder="Type your message..."
-							class="w-full rounded-lg border-2 border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+							class="w-full rounded-lg border-2 border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-secondary-400"
 							type="text"
 						/>
 						<button
 							type="submit"
-							class="rounded-lg bg-teal-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+							class="rounded-lg bg-primary-600 px-4 py-2 text-white hover:bg-secondary-700 disabled:cursor-not-allowed disabled:bg-gray-300"
 						>
 							Send
 						</button>

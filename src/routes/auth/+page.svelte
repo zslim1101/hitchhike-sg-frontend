@@ -69,7 +69,7 @@
 							name="email"
 							type="email"
 							placeholder="your@email.com"
-							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 							required
 						/>
 					</div>
@@ -80,7 +80,7 @@
 							name="password"
 							type="password"
 							placeholder="Your password"
-							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 							required
 						/>
 					</div>
@@ -88,12 +88,12 @@
 					<div class="flex flex-col justify-center">
 						<button
 							type="submit"
-							class="w-full rounded-lg bg-blue-600 py-2 font-medium text-white hover:bg-blue-700"
+							class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700"
 						>
 							Login
 						</button>
 						<div class="mt-3 text-center">
-							<a href="/auth/reset-password" class="text-blue-500 hover:underline"
+							<a href="/auth/reset-password" class="text-secondary-500 hover:underline"
 								>Forgot Password?</a
 							>
 						</div>
@@ -104,14 +104,14 @@
 				<form method="POST" action="?/signup" class="space-y-6">
 					<div class="space-y-2">
 						<label for="email" class="block text-sm font-medium text-gray-700"
-							>Email <label class="inline text-sm font-medium italic text-gray-500"
+							>Email <label for="email" class="inline text-sm font-medium italic text-gray-500"
 								>(required)</label
 							>
 							<input
 								name="email"
 								type="email"
 								placeholder="your@email.com"
-								class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+								class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 								required
 							/>
 						</label>
@@ -119,14 +119,15 @@
 
 					<div class="space-y-2">
 						<label for="password" class="block text-sm font-medium text-gray-700"
-							>Password <label class="inline text-sm font-medium italic text-gray-500"
-								>(required)</label
+							>Password <label
+								for="password"
+								class="inline text-sm font-medium italic text-gray-500">(required)</label
 							>
 							<input
 								name="password"
 								type="password"
 								placeholder="Your password"
-								class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+								class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 								required
 							/>
 						</label>
@@ -134,13 +135,14 @@
 
 					<div class="space-y-2">
 						<label for="name" class="block text-sm font-medium text-gray-700"
-							>Name <label class="inline text-sm font-medium italic text-gray-500">(required)</label
+							>Name <label for="name" class="inline text-sm font-medium italic text-gray-500"
+								>(required)</label
 							></label
 						>
 						<input
 							name="name"
 							type="text"
-							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 							placeholder="John Doe"
 							required
 						/>
@@ -151,7 +153,7 @@
 						<input
 							name="phone"
 							type="tel"
-							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 							placeholder="+65XXXXXXXX"
 							oninput={validatePhoneAndTgUsername}
 						/>
@@ -164,7 +166,7 @@
 						<input
 							name="tg_username"
 							type="tel"
-							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+							class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 							placeholder="Telegram @username"
 							oninput={validatePhoneAndTgUsername}
 						/>
@@ -173,7 +175,7 @@
 					<div class="flex justify-center">
 						<button
 							type="submit"
-							class="w-full rounded-lg bg-green-600 py-2 font-medium text-white hover:bg-green-700"
+							class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700"
 						>
 							Register
 						</button>
