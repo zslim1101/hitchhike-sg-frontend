@@ -3,7 +3,13 @@
 	import RangeSlider from 'svelte-range-slider-pips';
 	import { Autocomplete } from '@skeletonlabs/skeleton';
 	import type { AutocompleteOption } from '@skeletonlabs/skeleton';
-	import { LucideChevronLeft } from 'lucide-svelte';
+	import {
+		LucideCalendarClock,
+		LucideChevronLeft,
+		LucideCircleArrowDown,
+		LucideCircleUser,
+		LucideMapPin
+	} from 'lucide-svelte';
 
 	import { Modal, getModalStore } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
@@ -137,10 +143,16 @@
 	</div>
 	<form onsubmit={createTrip} class="rounded-lg bg-white p-6 shadow-md">
 		<h2 class="mb-2 text-xl font-semibold">Create a trip</h2>
-		<p class="mb-4 text-sm text-gray-500">Enter information about your trip</p>
+		<p class="mb-4 text-sm text-gray-500">
+			Enter information about the trip your are planning to make, so that others can join in and
+			split the bill
+		</p>
 
 		<!-- Time Input -->
-		<label for="date" class="label">Time</label>
+		<label for="date" class="label mb-1 font-bold"></label>
+		<div class="mb-2 flex flex-row gap-2">
+			<LucideCalendarClock /><span class="font-bold">Enter pick up date and time</span>
+		</div>
 		<input
 			type="datetime-local"
 			bind:value={time}
@@ -149,12 +161,14 @@
 
 		<!-- Pickup Location Select -->
 		<label for="pickup" class="label mt-6">
-			<span class="font-bold">Where to pick you up?</span>
+			<div class="flex flex-row gap-2">
+				<LucideCircleArrowDown /><span class="font-bold">Enter pick up location</span>
+			</div>
 			<input
 				class="input rounded-none px-4 py-2"
 				type="search"
 				bind:value={pickup_point}
-				placeholder="Search..."
+				placeholder="Search your pick up location..."
 			/>
 			<div class="card max-h-48 w-full overflow-y-auto rounded-none p-4" tabindex="-1">
 				<Autocomplete
@@ -167,12 +181,14 @@
 
 		<!-- Destination Select -->
 		<label for="dest" class="label mt-6">
-			<span class="font-bold">Where do you want to go?</span>
+			<div class="flex flex-row gap-2">
+				<LucideMapPin /><span class="font-bold">Enter drop off location</span>
+			</div>
 			<input
 				class="input rounded-none px-4 py-2"
 				type="search"
 				bind:value={destination}
-				placeholder="Search..."
+				placeholder="Search your drop off location..."
 			/>
 			<div class="card max-h-48 w-full overflow-y-auto rounded-none p-4" tabindex="-1">
 				<Autocomplete
@@ -183,6 +199,11 @@
 			</div>
 		</label>
 		<div class="mt-6 font-bold">
+			<div class="flex flex-row gap-2">
+				<LucideCircleUser /><span class="font-bold"
+					>How many people do you want to carpool with</span
+				>
+			</div>
 			<RangeSlider
 				range
 				pushy
