@@ -275,14 +275,34 @@
 </script>
 
 <div>
-	<div class="mb-1">
-		<a href="/private/trips" class="flex w-fit flex-row pr-3">
-			<LucideChevronLeft />
-			Return</a
-		>
+	<div class="mb-1 flex flex-row justify-between">
+		<div class="flex flex-col justify-center">
+			<a href="/private/trips" class="flex w-fit flex-row pr-3">
+				<LucideChevronLeft />
+				Return</a
+			>
+		</div>
+		{#if data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id}
+			<div class="flex flex-col items-center">
+				{#if ride?.created_by === data.user?.id}
+					<button
+						onclick={DeleteTrip}
+						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+						>Cancel Trip</button
+					>
+					<p class="px-1 text-xs">Others will be removed</p>
+				{:else}
+					<button
+						onclick={LeaveTrip}
+						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
+						>Leave Trip</button
+					>
+				{/if}
+			</div>
+		{/if}
 	</div>
 
-	{#if !data.HAS_JOINED_TRIP && !ride?.status === 'closed'}
+	{#if !data.HAS_JOINED_TRIP && ride?.status !== 'closed' && ride?.created_by !== data.user?.id}
 		<div class="rounded border border-yellow-500 bg-yellow-100 p-3">
 			<div class="flex flex-row items-center justify-between align-middle">
 				You haven't joined this trip yet.
@@ -435,33 +455,16 @@
 				</ul>
 			</div>
 
-			{#if data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id}
-				<div class="mt-10 flex flex-row items-center gap-3">
-					{#if ride?.created_by === data.user?.id}
-						<button
-							onclick={DeleteTrip}
-							class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-							>Cancel Trip</button
-						>
-						<p>Warning: Other users will be removed from the trip</p>
-					{:else}
-						<button
-							onclick={LeaveTrip}
-							class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
-							>Leave Trip</button
-						>
-					{/if}
-				</div>
-			{/if}
-
 			{#if ride?.created_by === data.user?.id}
-				<div class="mt-10 flex flex-row items-center gap-3">
+				<div class="mt-10 flex flex-col items-center gap-3">
 					<button
 						onclick={MarkTripComplete}
-						class="text-nowrap rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+						class="w-full text-nowrap rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
 						>Mark Trip Complete</button
 					>
-					<p>Warning: This will close the chat and mark the trip as complete</p>
+					<p class="text-xs text-tertiary-800">
+						Warning: This will close the chat and mark the trip as complete
+					</p>
 				</div>
 			{/if}
 		{/if}

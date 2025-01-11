@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
+	import { Ratings } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
 	import { writable } from 'svelte/store';
+	import { LucideStar, LucideStarHalf } from 'lucide-svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -203,8 +205,12 @@
 			{#each data.reviews as review}
 				<div class="w-full rounded-lg bg-white p-4 shadow-md">
 					<div>
+						<Ratings value={review.rating} max={5} min={1}>
+							<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
+							<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
+							<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+						</Ratings>
 						<p class="font-bold">{review.comment}</p>
-						<p class="text-sm text-gray-500">Rating: {review.rating}</p>
 						<p class="text-sm text-gray-500">Given by: {review.profiles?.name}</p>
 						<p class="text-right text-sm text-gray-500">
 							Review Date: {new Date(review.created_at).toLocaleString()}
