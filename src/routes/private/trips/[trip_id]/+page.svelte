@@ -111,13 +111,16 @@
 
 	function formatHumanReadable(dateString) {
 		const date = new Date(dateString); // Parses as UTC
+		const localTime = new Date(
+			date.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur', hour12: false })
+		); // Converts to local time
 
-		const day = String(date.getUTCDate()).padStart(2, '0');
-		const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }); // Converts to "MMM"
-		const year = date.getUTCFullYear();
+		const day = String(localTime.getUTCDate()).padStart(2, '0');
+		const month = localTime.toLocaleString('en-US', { month: 'short' }); // Converts to "MMM"
+		const year = localTime.getUTCFullYear();
 
-		let hours = date.getUTCHours();
-		const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+		let hours = localTime.getHours();
+		const minutes = String(localTime.getMinutes()).padStart(2, '0');
 
 		const period = hours >= 12 ? 'PM' : 'AM';
 		hours = hours % 12 || 12; // Convert to 12-hour format
@@ -126,6 +129,8 @@
 	}
 
 	const LeaveTrip = async () => {
+		const confirmed = confirm('Are you sure you want to leave this trip?');
+		if (!confirmed) return;
 		const { error: t_pas_error } = await data.supabase
 			.from('trip_passengers')
 			.delete()
@@ -139,7 +144,7 @@
 				.eq('id', ride?.id);
 			if (trip_error) {
 			} else {
-				goto('/private/trips');
+				window.location.href = '/private/trips';
 			}
 		}
 	};
@@ -152,7 +157,7 @@
 		const { error: trip_error } = await data.supabase.from('trips').delete().eq('id', ride?.id);
 		if (trip_error) {
 		} else {
-			goto('/private/trips');
+			window.location.href = '/private/trips';
 		}
 	};
 
@@ -294,27 +299,21 @@
 				{:else}
 					<button
 						onclick={LeaveTrip}
-						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
+						class="mr-2 text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
 						>Leave Trip</button
 					>
 				{/if}
 			</div>
 		{/if}
+		{#if !data.HAS_JOINED_TRIP && ride?.status !== 'closed' && ride?.created_by !== data.user?.id}
+			<button
+				onclick={() => handleUserJoin(data.my_trip)}
+				class="mr-2 rounded bg-primary-400 px-3 py-2 text-white hover:bg-primary-600"
+			>
+				JOIN TRIP
+			</button>
+		{/if}
 	</div>
-
-	{#if !data.HAS_JOINED_TRIP && ride?.status !== 'closed' && ride?.created_by !== data.user?.id}
-		<div class="rounded border border-yellow-500 bg-yellow-100 p-3">
-			<div class="flex flex-row items-center justify-between align-middle">
-				You haven't joined this trip yet.
-				<button
-					onclick={() => handleUserJoin(data.my_trip)}
-					class=" rounded bg-primary-400 px-3 py-2 text-white hover:bg-primary-600"
-				>
-					JOIN TRIP
-				</button>
-			</div>
-		</div>
-	{/if}
 
 	<div class="container m-1 mx-auto w-full bg-white p-4 shadow">
 		<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">

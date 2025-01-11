@@ -17,13 +17,16 @@
 
 	function formatHumanReadable(dateString) {
 		const date = new Date(dateString); // Parses as UTC
+		const localTime = new Date(
+			date.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur', hour12: false })
+		); // Converts to local time
 
-		const day = String(date.getUTCDate()).padStart(2, '0');
-		const month = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' }); // Converts to "MMM"
-		const year = date.getUTCFullYear();
+		const day = String(localTime.getUTCDate()).padStart(2, '0');
+		const month = localTime.toLocaleString('en-US', { month: 'short' }); // Converts to "MMM"
+		const year = localTime.getUTCFullYear();
 
-		let hours = date.getUTCHours();
-		const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+		let hours = localTime.getHours();
+		const minutes = String(localTime.getMinutes()).padStart(2, '0');
 
 		const period = hours >= 12 ? 'PM' : 'AM';
 		hours = hours % 12 || 12; // Convert to 12-hour format

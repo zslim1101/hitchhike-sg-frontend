@@ -30,14 +30,21 @@
 
 	function getLocalDateTime() {
 		const now = new Date();
-		const year = now.getFullYear();
-		const month = String(now.getMonth() + 1).padStart(2, '0');
-		const day = String(now.getDate()).padStart(2, '0');
-		const hours = String(now.getHours()).padStart(2, '0');
-		const minutes = String(now.getMinutes()).padStart(2, '0');
+		const thirtyMinutesLater = new Date(now.getTime() + 30 * 60 * 1000);
+		const year = thirtyMinutesLater.getFullYear();
+		const month = String(thirtyMinutesLater.getMonth() + 1).padStart(2, '0');
+		const day = String(thirtyMinutesLater.getDate()).padStart(2, '0');
+		const hours = String(thirtyMinutesLater.getHours()).padStart(2, '0');
+		const minutes = String(thirtyMinutesLater.getMinutes()).padStart(2, '0');
 
 		return `${year}-${month}-${day}T${hours}:${minutes}`;
 	}
+
+	function convertToUTC(localTime) {
+		const date = new Date(localTime); // local time string from datetime-local input
+		return date.toISOString(); // Converts it to UTC in ISO 8601 format
+	}
+
 	let values = $state([2, 3]);
 	let min = 2;
 	let max = 6;
@@ -68,7 +75,7 @@
 		const { data: trip, error } = await data.supabase
 			.from('trips')
 			.insert({
-				departure_time: time,
+				departure_time: convertToUTC(time),
 				pickup_point: pickup_point_id,
 				destination: destination_id,
 				min_pass: minPassengers,
