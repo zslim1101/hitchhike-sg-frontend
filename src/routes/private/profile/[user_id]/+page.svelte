@@ -15,14 +15,16 @@
 				<p class="mt-1">{data?.profile?.name}</p>
 			</div>
 
-			<div>
-				<p class="block font-bold">Phone</p>
-				<p class="mt-1">{data?.profile?.phone ?? 'No phone number'}</p>
-			</div>
-			<div>
-				<p class="block font-bold">Telegram</p>
-				<p class="mt-1">{data?.profile?.tg_username ?? 'No telegram username'}</p>
-			</div>
+			{#if data?.profile?.ispublic}
+				<div>
+					<p class="block font-bold">Phone</p>
+					<p class="mt-1">{data?.profile?.phone ?? 'No phone number'}</p>
+				</div>
+				<div>
+					<p class="block font-bold">Telegram</p>
+					<p class="mt-1">{data?.profile?.tg_username ?? 'No telegram username'}</p>
+				</div>
+			{/if}
 		</div>
 	</div>
 

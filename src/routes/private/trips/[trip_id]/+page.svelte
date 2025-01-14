@@ -632,7 +632,7 @@
 					{/each}
 				</ul>
 			</div>
-		{:else if data.HAS_JOINED_TRIP}
+		{:else if data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id}
 			<div>
 				<div class="space-y-4 p-4">
 					<h2 class="text-center text-2xl font-semibold text-gray-800">Instant Chat</h2>

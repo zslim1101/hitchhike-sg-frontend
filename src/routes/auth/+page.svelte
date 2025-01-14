@@ -5,6 +5,18 @@
 
 	let isLoginView = true; // Default view is Login
 	let tabSet: number = 0;
+
+	let password = '';
+	let passwordError = '';
+
+	function verifyPasswordLength() {
+		if (password.length < 6) {
+			passwordError = 'Password must be at least 6 characters long';
+		} else {
+			passwordError = '';
+		}
+	}
+
 	// Function to switch the view based on the hash in URL
 	function checkHash() {
 		isLoginView = window.location.hash === '#login' || window.location.hash === '';
@@ -126,10 +138,15 @@
 							<input
 								name="password"
 								type="password"
+								bind:value={password}
+								onchange={verifyPasswordLength}
 								placeholder="Your password"
 								class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
 								required
 							/>
+							<p class="text-sm text-red-500">
+								{passwordError ? `Password must be at least 6 characters` : ''}
+							</p>
 						</label>
 					</div>
 
