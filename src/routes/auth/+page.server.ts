@@ -24,7 +24,8 @@ export const actions: Actions = {
 					name,
 					phone,
 					tg_username
-				}
+				},
+				emailRedirectTo: 'https://www.carpool.asia/auth/confirm'
 			}
 		});
 
