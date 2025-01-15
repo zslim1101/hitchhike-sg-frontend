@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	export let form;
@@ -8,7 +9,13 @@
 
 	let password = '';
 	let passwordError = '';
-
+	let showverify = false;
+	$: if (
+		typeof $page.url.searchParams.get('showverify') === 'string' &&
+		$page.url.searchParams.get('showverify')?.toLowerCase() === 'true'
+	) {
+		showverify = true;
+	}
 	function verifyPasswordLength() {
 		if (password.length < 6) {
 			passwordError = 'Password must be at least 6 characters long';
@@ -73,6 +80,19 @@
 					{/if}
 					{#if form?.invalid_login}
 						<p class="mt-4 text-center font-bold text-red-300">Invalid login credentials</p>
+					{/if}
+					{#if form?.email_not_verified}
+						<p class="mt-4 text-center font-bold text-red-300">
+							Please verify your email before logging in
+						</p>
+					{/if}
+
+					{#if showverify}
+						<p
+							class="mt-4 rounded-md border border-gray-300 bg-slate-100 p-3 text-center font-bold text-gray-600"
+						>
+							Please verify your email by clicking the link in your email.
+						</p>
 					{/if}
 
 					<div class="space-y-2">

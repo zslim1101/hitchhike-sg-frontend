@@ -36,7 +36,7 @@ export const actions: Actions = {
 
 			redirect(303, '/auth/error');
 		} else {
-			redirect(303, '/private');
+			redirect(303, '/auth?showverify=true');
 		}
 	},
 	login: async ({ request, locals: { supabase } }) => {
@@ -46,8 +46,12 @@ export const actions: Actions = {
 
 		const { error } = await supabase.auth.signInWithPassword({ email, password });
 		if (error) {
+			console.log(error.message);
 			if (error.message.includes('Invalid login credentials')) {
 				return fail(400, { email, invalid_login: 'Invalid login credentials' });
+			}
+			if (error.message === 'Email not confirmed') {
+				return fail(400, { email, email_not_verified: 'Email not verified' });
 			}
 
 			redirect(303, '/auth/error');
