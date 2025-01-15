@@ -25,7 +25,7 @@ export const actions: Actions = {
 					phone,
 					tg_username
 				},
-				emailRedirectTo: 'https://www.carpool.asia/auth/confirm'
+				emailRedirectTo: 'https://www.carpool.asia/auth/congratulations'
 			}
 		});
 
