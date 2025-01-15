@@ -48,6 +48,7 @@
 		"@floating-ui/dom": "^1.6.12",
 		"@supabase/ssr": "^0.5.1",
 		"@supabase/supabase-js": "^2.46.1",
-		"lucide-svelte": "^0.454.0"
+		"lucide-svelte": "^0.454.0",
+		"twilio": "^5.4.2"
 	}
 }

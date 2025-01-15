@@ -1,4 +1,4 @@
-import type { PageLoad } from './$types';
+import type { LayoutLoad } from './$types';
 
 export const load = (async ({ parent }) => {
 	const { supabase, user } = await parent();
@@ -13,4 +13,4 @@ export const load = (async ({ parent }) => {
 	console.log(error);
 
 	return { profile, reviews };
-}) satisfies PageLoad;
+}) satisfies LayoutLoad;

@@ -139,6 +139,12 @@
 						>Edit</button
 					>
 				{/if}
+				<a
+					href="/private/profile/verify-phone"
+					class="mt-1 rounded bg-primary-500 px-2 py-1 text-xs text-white hover:bg-primary-600"
+				>
+					Verify
+				</a>
 			</div>
 			<div>
 				<p class="block font-bold">Telegram</p>
