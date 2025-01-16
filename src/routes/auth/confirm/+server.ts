@@ -18,5 +18,5 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 		}
 	}
 
-	redirect(303, '/auth/error');
+	redirect(303, '/private');
 };
