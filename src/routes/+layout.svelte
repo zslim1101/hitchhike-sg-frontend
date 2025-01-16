@@ -24,11 +24,11 @@
 <Modal />
 
 <svelte:head>
-	<title>Carpool Asia</title>
+	<title>Carpool Asia | Share your ride, Split the cost, Travel Faster</title>
 	<meta property="og:site_name" content="Carpool Asia" />
 	<meta
 		name="description"
-		content="Find carpool partners, save money on daily commutes, and enjoy a sustainable travel. Carpool Asia connects you with commuters near you. Register and start carpooling now!"
+		content="Find carpool partners, save money on daily commutes, and enjoy a fast and sustainable travel. Carpool Asia connects you with commuters near you. Register and start carpooling now!"
 	/>
 	<meta
 		name="keywords"
