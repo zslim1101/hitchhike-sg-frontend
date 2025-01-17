@@ -99,7 +99,7 @@
 				</p>
 				<label for="token" class="mb-1 mt-4 block">Your OTP</label>
 				<input
-					type="text"
+					type="number"
 					bind:value={token}
 					placeholder="XXXXXX"
 					class="w-full rounded-lg border border-gray-300 px-4 py-2"
