@@ -108,7 +108,7 @@
 						<p
 							class="mt-4 rounded-md border border-gray-300 bg-slate-100 p-3 text-center font-bold text-gray-600"
 						>
-							Your Email has been verified. Now you can now login
+							Your Email has been verified. You can now login with your newly created account!
 						</p>
 					{/if}
 
