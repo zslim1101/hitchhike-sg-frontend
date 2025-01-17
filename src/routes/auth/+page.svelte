@@ -16,6 +16,15 @@
 	) {
 		showverify = true;
 	}
+
+	let verified = false;
+	$: if (
+		typeof $page.url.searchParams.get('verified') === 'string' &&
+		$page.url.searchParams.get('verified')?.toLowerCase() === 'true'
+	) {
+		verified = true;
+	}
+
 	function verifyPasswordLength() {
 		if (password.length < 6) {
 			passwordError = 'Password must be at least 6 characters long';
@@ -92,6 +101,14 @@
 							class="mt-4 rounded-md border border-gray-300 bg-slate-100 p-3 text-center font-bold text-gray-600"
 						>
 							Please verify your email by clicking the link in your email.
+						</p>
+					{/if}
+
+					{#if verified}
+						<p
+							class="mt-4 rounded-md border border-gray-300 bg-slate-100 p-3 text-center font-bold text-gray-600"
+						>
+							Your Email has been verified. Now you can now login
 						</p>
 					{/if}
 

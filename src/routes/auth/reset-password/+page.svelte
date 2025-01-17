@@ -1,53 +1,197 @@
 <script lang="ts">
-	import { LucideArrowLeft } from 'lucide-svelte';
 	import type { PageData } from './$types';
-	import { goto } from '$app/navigation';
 
-	let email = $state('');
-	let isloading = $state(false);
-	let { data }: { data: PageData } = $props();
+	export let data: PageData;
+	$: ({ supabase, session } = data);
 
-	async function resetPassword() {
-		isloading = true;
-		if (email) {
-			const { error } = await data.supabase.auth.resetPasswordForEmail(email, {
-				redirectTo: window.location.origin + '/auth/confirm-reset'
-			});
-			if (error) {
-				alert(error.message);
-			} else {
-				goto('/auth/email-sent');
-			}
+	let loading = false;
+	let email = '';
+	let token = '';
+	let successMessage = '';
+	let errorMessage = '';
+
+	let newPassword = '';
+	let confirmPassword = '';
+
+	const handleChangePassword = async () => {
+		if (newPassword !== confirmPassword) {
+			errorMessage = 'Passwords do not match';
+			return;
 		}
-		isloading = false;
-	}
+
+		const { error } = await supabase.auth.updateUser({ password: newPassword });
+		if (error) {
+			errorMessage = error.message;
+		} else {
+			errorMessage = '';
+			successMessage = 'Password updated successfully';
+			step = 4;
+		}
+	};
+
+	let step = 1;
+
+	const handleResetPass = async () => {
+		if (!email || email === '') {
+			errorMessage = 'Please enter email';
+			return;
+		}
+		errorMessage = '';
+		loading = true;
+
+		const { error } = await supabase.auth.resetPasswordForEmail(email);
+		if (error) {
+			errorMessage = error.message;
+		} else {
+			step = 2;
+			successMessage = 'OTP has been sent to your email!';
+		}
+
+		loading = false;
+	};
+
+	const handleSendToken = async () => {
+		loading = true;
+		const { error } = await supabase.auth.verifyOtp({ email, token, type: 'recovery' });
+		if (!error) {
+			step = 3;
+			// goto('/account/update-password');
+		} else {
+			errorMessage = error.message;
+		}
+		loading = false;
+	};
 </script>
 
-<div class="mx-auto mt-3 max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg">
-	<div class="flex items-center justify-start">
-		<a href="/auth" class="mr-4 text-secondary-500 hover:underline">
-			<LucideArrowLeft size="24" />
-		</a>
-		<h2 class="text-center text-2xl font-semibold text-gray-800">Reset Password</h2>
+<svelte:head>
+	<title>Forgot Password | Carpool Asia</title>
+</svelte:head>
+
+<div class="flex h-screen w-full items-center justify-center">
+	<div class=" flex flex-col items-center justify-center rounded-xl bg-white p-5 px-5 sm:px-10">
+		<h1 class="text-2xl font-bold">Account Recovery</h1>
+		<h1 class="mb-7 text-sm font-bold text-gray-300">Reset your password</h1>
+		<p class="mb-6 text-center text-lg font-bold">
+			{#if step === 1}
+				Step 1: Enter Email
+			{:else if step !== 2}
+				Step 2: Enter OTP
+			{:else}
+				Step 3: Change Password
+			{/if}
+		</p>
+		<form>
+			{#if step === 1}
+				<div class="mb-4 w-full max-w-lg">
+					<label for="email" class="mb-1 block font-semibold">Your Email</label>
+					<input
+						type="email"
+						bind:value={email}
+						placeholder="example@email.com"
+						class="w-full rounded-lg border border-gray-300 px-4 py-2"
+					/>
+				</div>
+			{/if}
+
+			{#if step === 2}
+				<p class="mt-2 rounded-lg bg-green-100 p-3 text-sm font-bold text-green-800">
+					{successMessage}
+				</p>
+				<label for="token" class="mb-1 mt-4 block">Your OTP</label>
+				<input
+					type="text"
+					bind:value={token}
+					placeholder="XXXXXX"
+					class="w-full rounded-lg border border-gray-300 px-4 py-2"
+				/>
+			{/if}
+
+			{#if errorMessage !== ''}
+				<p class="mt-2 rounded-lg border border-red-500 p-3 text-sm font-bold text-red-800">
+					{errorMessage}
+				</p>
+			{/if}
+
+			{#if step === 1}
+				<div class="pt-10">
+					<button
+						disabled={loading}
+						on:click={handleResetPass}
+						class="w-full rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-gray-200"
+					>
+						Send OTP
+					</button>
+				</div>
+			{:else if step === 2}
+				<div class="pt-10">
+					<button
+						disabled={loading}
+						on:click={handleSendToken}
+						class="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+					>
+						Verify OTP
+					</button>
+					{#if errorMessage !== ''}
+						<button
+							on:click={() => {
+								errorMessage = '';
+								email = '';
+								successMessage = '';
+								step = 1;
+							}}
+							class="ml-2 rounded-lg bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+						>
+							Re-enter Email
+						</button>
+					{/if}
+				</div>
+			{/if}
+
+			{#if step === 3}
+				<div class="mb-4 w-full max-w-lg">
+					<label for="newPassword" class="mb-1 block font-semibold">New Password</label>
+					<input
+						type="password"
+						bind:value={newPassword}
+						placeholder="Enter new password"
+						class="w-full rounded-lg border border-gray-300 px-4 py-2"
+					/>
+				</div>
+				<div class="mb-4 w-full max-w-lg">
+					<label for="confirmPassword" class="mb-1 block font-semibold">Confirm Password</label>
+					<input
+						type="password"
+						bind:value={confirmPassword}
+						placeholder="Re-enter new password"
+						class="w-full rounded-lg border border-gray-300 px-4 py-2"
+					/>
+				</div>
+
+				<button
+					disabled={loading}
+					on:click={handleChangePassword}
+					class="w-full rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+				>
+					Change Password
+				</button>
+			{/if}
+
+			{#if step === 4}
+				<div>
+					<p class="mb-10 mt-2 rounded-lg bg-green-100 p-3 text-sm font-bold text-green-800">
+						{successMessage}
+					</p>
+					<a
+						href="/auth"
+						class="mt-3 w-full rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+						>Return to Login</a
+					>
+				</div>
+			{/if}
+
+			<div class="pt-3">
+				<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
+			</div>
+		</form>
 	</div>
-
-	<form onsubmit={resetPassword} class="space-y-6">
-		<div class="space-y-2">
-			<label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-			<input
-				type="email"
-				id="email"
-				bind:value={email}
-				required
-				class="w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
-			/>
-		</div>
-
-		<button
-			type="submit"
-			disabled={isloading}
-			class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700 disabled:bg-gray-400 disabled:text-gray-800"
-			>Reset Password</button
-		>
-	</form>
 </div>
