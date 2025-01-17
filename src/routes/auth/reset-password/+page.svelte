@@ -122,6 +122,9 @@
 						Send OTP
 					</button>
 				</div>
+				<div class="pt-3">
+					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
+				</div>
 			{:else if step === 2}
 				<div class="pt-10">
 					<button
@@ -144,6 +147,9 @@
 							Re-enter Email
 						</button>
 					{/if}
+				</div>
+				<div class="pt-3">
+					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
 				</div>
 			{/if}
 
@@ -174,6 +180,9 @@
 				>
 					Change Password
 				</button>
+				<div class="pt-3">
+					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
+				</div>
 			{/if}
 
 			{#if step === 4}
@@ -188,10 +197,6 @@
 					>
 				</div>
 			{/if}
-
-			<div class="pt-3">
-				<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
-			</div>
 		</form>
 	</div>
 </div>
