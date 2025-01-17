@@ -74,7 +74,7 @@
 		<p class="mb-6 text-center text-lg font-bold">
 			{#if step === 1}
 				Step 1: Enter Email
-			{:else if step !== 2}
+			{:else if step === 2}
 				Step 2: Enter OTP
 			{:else}
 				Step 3: Change Password
@@ -99,7 +99,7 @@
 				</p>
 				<label for="token" class="mb-1 mt-4 block">Your OTP</label>
 				<input
-					type="number"
+					type="text"
 					bind:value={token}
 					placeholder="XXXXXX"
 					class="w-full rounded-lg border border-gray-300 px-4 py-2"
