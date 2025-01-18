@@ -8,7 +8,7 @@
 		LucideStar,
 		LucideStarHalf
 	} from 'lucide-svelte';
-	import { Ratings } from '@skeletonlabs/skeleton';
+	import { ProgressBar, Ratings } from '@skeletonlabs/skeleton';
 	let { data }: { data: PageData } = $props();
 	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -23,6 +23,8 @@
 	let isLoading = writable(false);
 
 	let reviewvalue = $state(0);
+
+	let isLeavingLoading = $state(false);
 
 	let reviewvalues = $state([0, 0, 0, 0, 0, 0, 0, 0]);
 
@@ -129,8 +131,13 @@
 	}
 
 	const LeaveTrip = async () => {
+		isLeavingLoading = true;
 		const confirmed = confirm('Are you sure you want to leave this trip?');
-		if (!confirmed) return;
+		if (!confirmed) {
+			isLeavingLoading = false;
+			return;
+		}
+		data.supabase.removeAllChannels();
 		const { error: t_pas_error } = await data.supabase
 			.from('trip_passengers')
 			.delete()
@@ -144,26 +151,38 @@
 				.eq('id', ride?.id);
 			if (trip_error) {
 			} else {
-				window.location.href = '/private/trips';
+				goto('/private/trips');
 			}
 		}
+		isLeavingLoading = false;
 	};
 
 	const DeleteTrip = async () => {
+		isLeavingLoading = true;
 		const confirmed = confirm(
 			'Are you sure you want to delete this trip? This action cannot be undone.'
 		);
-		if (!confirmed) return;
+		if (!confirmed) {
+			isLeavingLoading = false;
+			return;
+		}
+
+		data.supabase.removeAllChannels();
 		const { error: trip_error } = await data.supabase.from('trips').delete().eq('id', ride?.id);
 		if (trip_error) {
 		} else {
-			window.location.href = '/private/trips';
+			goto('/private/trips');
 		}
+		isLeavingLoading = false;
 	};
 
 	const MarkTripComplete = async () => {
+		isLeavingLoading = true;
 		const confirmed = confirm('Are you sure you want to mark this trip as complete?');
-		if (!confirmed) return;
+		if (!confirmed) {
+			isLeavingLoading = false;
+			return;
+		}
 
 		const { error: trip_error } = await data.supabase
 			.from('trips')
@@ -191,10 +210,12 @@
 					.insert(trip_passengers_user_ids);
 				if (review_error) {
 				} else {
-					goto('/private/trips');
+					// data.supabase.removeAllChannels();
+					// goto('/private/trips');
 				}
 			}
 		}
+		isLeavingLoading = false;
 	};
 
 	const handleSubmitReview = async (event) => {
@@ -277,9 +298,30 @@
 			}
 		}
 	};
+
+	const kickUser = async (user_id) => {
+		const { error } = await data.supabase.from('trip_passengers').delete().eq('user_id', user_id);
+		if (error) {
+			alert('Fail To Remove');
+		} else {
+			const { error: updateError } = await data.supabase
+				.from('trips')
+				.update({ current_passengers: ride?.current_passengers - 1 })
+				.eq('id', ride?.id);
+
+			if (updateError) {
+				alert('Fail To Remove');
+			} else {
+				invalidate('trips:single-trip');
+			}
+		}
+	};
 </script>
 
 <div>
+	{#if isLeavingLoading}
+		<ProgressBar meter="bg-secondary-600" />
+	{/if}
 	<div class="mb-1 flex flex-row justify-between">
 		<div class="flex flex-col justify-center">
 			<a href="/private/trips" class="flex w-fit flex-row pr-3">
@@ -287,7 +329,7 @@
 				Return</a
 			>
 		</div>
-		{#if data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id}
+		{#if (data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id) && ride?.status !== 'closed'}
 			<div class="flex flex-col items-center">
 				{#if ride?.created_by === data.user?.id}
 					<button
@@ -308,7 +350,7 @@
 		{#if !data.HAS_JOINED_TRIP && ride?.status !== 'closed' && ride?.created_by !== data.user?.id}
 			<button
 				onclick={() => handleUserJoin(data.my_trip)}
-				class="mr-2 rounded bg-primary-400 px-3 py-2 text-white hover:bg-primary-600"
+				class="mr-2 rounded bg-primary-600 px-3 py-2 text-white hover:bg-primary-600"
 			>
 				JOIN TRIP
 			</button>
@@ -384,7 +426,7 @@
 				<h2 class="text-lg font-bold">Passengers:</h2>
 				<ul class="list-none space-y-2">
 					<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
-						<div class="flex items-center justify-between">
+						<div class="flex items-center justify-between gap-4">
 							<div>
 								{#await data.supabase
 									.from('profiles')
@@ -393,8 +435,9 @@
 									.single()}
 									<p>Loading...</p>
 								{:then { data: owner }}
-									<a class="font-semibold text-gray-800" href="/private/profile/{ride?.created_by}"
-										>{owner.name} (Owner)</a
+									<a
+										class=" break-all font-semibold text-gray-800"
+										href="/private/profile/{ride?.created_by}">{owner.name} (Owner)</a
 									>
 								{/await}
 							</div>
@@ -424,10 +467,21 @@
 					{#each ride?.trip_passengers as passenger}
 						<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
 							<div class="flex items-center justify-between">
-								<a href="/private/profile/{passenger?.user_id}" class="font-semibold text-gray-800">
+								<a
+									href="/private/profile/{passenger?.user_id}"
+									class="break-all font-semibold text-gray-800"
+								>
 									{passenger?.name}
 								</a>
-								<div>
+								<div class="flex flex-row items-center gap-4">
+									{#if passenger?.user_id !== data.user?.id}
+										<button
+											class="mr-2 text-nowrap rounded bg-red-500 px-3 py-2 text-xs text-white hover:bg-red-800"
+											onclick={() => kickUser(passenger?.user_id)}
+										>
+											KICK
+										</button>
+									{/if}
 									{#await data.supabase
 										.from('user_reviews')
 										.select('*')

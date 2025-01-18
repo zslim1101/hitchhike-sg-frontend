@@ -1,19 +1,46 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { TabGroup, Tab } from '@skeletonlabs/skeleton';
+	import { TabGroup, Tab, ProgressBar } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 	export let form;
+	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 
 	let isLoginView = true; // Default view is Login
-	let tabSet: number = 0;
+
+	onMount(() => {
+		$page.url.hash === '#register' && (isLoginView = false);
+	});
+
+	//loading state
+	let isRegisterLoading = false;
+
+	let isLoginLoading = false;
+
+	const submitRegister = () => {
+		isRegisterLoading = true;
+
+		return async ({ update }) => {
+			await update();
+			isRegisterLoading = false;
+			isLoginView = true;
+		};
+	};
+
+	const submitLogin = () => {
+		isLoginLoading = true;
+
+		return async ({ update }) => {
+			await update();
+			isLoginLoading = false;
+		};
+	};
 
 	let password = '';
 	let passwordError = '';
 	let showverify = false;
-	$: if (
-		typeof $page.url.searchParams.get('showverify') === 'string' &&
-		$page.url.searchParams.get('showverify')?.toLowerCase() === 'true'
-	) {
+
+	$: if (form?.success) {
 		showverify = true;
 	}
 
@@ -34,22 +61,6 @@
 	}
 
 	// Function to switch the view based on the hash in URL
-	function checkHash() {
-		isLoginView = window.location.hash === '#login' || window.location.hash === '';
-		if (isLoginView) {
-			tabSet = 0;
-		} else {
-			tabSet = 1;
-		}
-	}
-
-	// Update view on page load and hash change
-	onMount(() => {
-		checkHash();
-		window.addEventListener('hashchange', checkHash);
-		// Clean up the event listener
-		return () => window.removeEventListener('hashchange', checkHash);
-	});
 
 	function validatePhoneAndTgUsername() {
 		const phone = document.querySelector<HTMLInputElement>('[name="phone"]');
@@ -69,26 +80,47 @@
 
 <div class="mx-auto max-w-md space-y-6 rounded-lg bg-white p-8 shadow-lg">
 	<h2 class="text-center text-2xl font-semibold text-gray-800">
-		{tabSet === 0 ? 'Login' : 'Register'}
+		{isLoginView ? 'Login' : 'Register'}
 	</h2>
 
 	<TabGroup>
-		<Tab bind:group={tabSet} name="tab1" value={0}>
+		<Tab
+			bind:group={isLoginView}
+			on:click={() => {
+				goto('/auth#login');
+			}}
+			name="tab1"
+			value={true}
+		>
 			<span>Login</span>
 		</Tab>
-		<Tab bind:group={tabSet} name="tab2" value={1}>Register</Tab>
+		<Tab
+			bind:group={isLoginView}
+			on:click={() => {
+				goto('/auth#register');
+			}}
+			name="tab2"
+			value={false}>Register</Tab
+		>
 		<!-- Tab Panels --->
 		<svelte:fragment slot="panel">
-			{#if tabSet === 0}
+			{#if isLoginView}
 				<!-- Login Form -->
-				<form method="POST" action="?/login" class="space-y-6">
+				<form method="POST" action="?/login" class="space-y-6" use:enhance={submitLogin}>
 					{#if form?.user_exists}
 						<p class="mt-4 text-center font-bold text-red-300">
 							You already have an account, please login.
 						</p>
 					{/if}
 					{#if form?.invalid_login}
-						<p class="mt-4 text-center font-bold text-red-300">Invalid login credentials</p>
+						<div class="mt-4 rounded-lg border border-red-600 bg-red-200 p-1">
+							<p class=" text-center font-bold text-red-500">Invalid login credentials</p>
+						</div>
+					{/if}
+					{#if form?.error_message}
+						<div class="mt-4 rounded-lg border border-red-600 bg-red-200 p-1">
+							<p class=" text-center font-bold text-red-500">{error_message}</p>
+						</div>
 					{/if}
 					{#if form?.email_not_verified}
 						<p class="mt-4 text-center font-bold text-red-300">
@@ -100,7 +132,7 @@
 						<p
 							class="mt-4 rounded-md border border-gray-300 bg-slate-100 p-3 text-center font-bold text-gray-600"
 						>
-							Please verify your email by clicking the link in your email.
+							Please verify your email to activate your account and login.
 						</p>
 					{/if}
 
@@ -134,10 +166,15 @@
 						/>
 					</div>
 
-					<div class="flex flex-col justify-center">
+					<div class="flex flex-col justify-center gap-2">
+						{#if isLoginLoading}
+							<ProgressBar meter="bg-secondary-600" />
+						{/if}
 						<button
+							disabled={isLoginLoading}
+							aria-busy={isLoginLoading}
 							type="submit"
-							class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700"
+							class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700 disabled:bg-gray-300"
 						>
 							Login
 						</button>
@@ -148,9 +185,9 @@
 						</div>
 					</div>
 				</form>
-			{:else if tabSet === 1}
+			{:else}
 				<!-- Register Form -->
-				<form method="POST" action="?/signup" class="space-y-6">
+				<form method="POST" action="?/signup" class="space-y-6" use:enhance={submitRegister}>
 					<div class="space-y-2">
 						<label for="email" class="block text-sm font-medium text-gray-700"
 							>Email <label for="email" class="inline text-sm font-medium italic text-gray-500"
@@ -226,10 +263,15 @@
 						/>
 					</div>
 
-					<div class="flex justify-center">
+					<div class="flex flex-col justify-center gap-2">
+						{#if isRegisterLoading}
+							<ProgressBar meter="bg-secondary-600" />
+						{/if}
 						<button
+							aria-busy={isRegisterLoading}
+							disabled={isRegisterLoading}
 							type="submit"
-							class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700"
+							class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700 disabled:cursor-not-allowed disabled:bg-gray-300"
 						>
 							Register
 						</button>

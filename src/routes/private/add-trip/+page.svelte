@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import RangeSlider from 'svelte-range-slider-pips';
-	import { Autocomplete } from '@skeletonlabs/skeleton';
+	import { Autocomplete, ProgressBar } from '@skeletonlabs/skeleton';
 	import type { AutocompleteOption } from '@skeletonlabs/skeleton';
 	import {
 		LucideCalendarClock,
@@ -58,8 +58,11 @@
 	let minPassengers: number = $derived(values[0]);
 	let maxPassengers: number = $derived(values[1]);
 
+	let isLoading = $state(false);
+
 	// Function to handle form submission
 	async function createTrip() {
+		isLoading = true;
 		const { data: similar_trips, error: error_similar_trips } = await data.supabase
 			.from('trips')
 			.select('*')
@@ -70,7 +73,10 @@
 
 		if (similar_trips) {
 			const confirmed = confirm('A similar trip already exists. Do you want to proceed?');
-			if (!confirmed) return;
+			if (!confirmed) {
+				isLoading = false;
+				return;
+			}
 		}
 		const { data: trip, error } = await data.supabase
 			.from('trips')
@@ -92,6 +98,7 @@
 			console.log('Trip created successfully:', trip.id);
 			goto(`/private/trips/${trip.id}`);
 		}
+		isLoading = false;
 	}
 
 	function onDestinationSelection(event: CustomEvent<AutocompleteOption<string>>): void {
@@ -228,11 +235,16 @@
 		</p>
 
 		<!-- Submit Button -->
-		<button
-			type="submit"
-			class="mt-10 w-full rounded bg-gray-800 py-2 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-		>
-			Submit
-		</button>
+		<div class="flex flex-col gap-1">
+			<button
+				type="submit"
+				class="mt-10 w-full rounded bg-gray-800 py-2 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+			>
+				Submit
+			</button>
+			{#if isLoading}
+				<ProgressBar meter="bg-secondary-600" />
+			{/if}
+		</div>
 	</form>
 </div>

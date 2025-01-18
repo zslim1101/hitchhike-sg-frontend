@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto, invalidate } from '$app/navigation';
+	import { ProgressBar } from '@skeletonlabs/skeleton';
 	import {
 		LucideCircleArrowDown,
 		LucideCircleUser,
@@ -64,7 +65,8 @@
 			if (updateError) {
 				alert('Full');
 			} else {
-				// window.location.href = `/private/trips/${ride.id}`;
+				data.supabase.removeAllChannels();
+				goto(`/private/trips/${ride.id}`);
 				isjoiningaTrip = false;
 				return;
 			}
@@ -88,6 +90,9 @@
 </script>
 
 <div class="space-y-4">
+	{#if isjoiningaTrip}
+		<ProgressBar meter="bg-secondary-600" />
+	{/if}
 	<div class="flex w-full flex-col gap-3 overflow-x-auto p-2">
 		<p class="font-bold">Current Trip</p>
 		{#if my_trips && my_trips.length > 0}
@@ -355,8 +360,6 @@
 										<button
 											onclick={async () => {
 												await handleUserJoin(ride);
-												await new Promise((resolve) => setTimeout(resolve, 100));
-												await goto(`/private/trips/${ride.id}`);
 											}}
 											disabled={(my_trips && my_trips.length > 0) ||
 												data.joined_trips !== null ||

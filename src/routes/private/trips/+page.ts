@@ -25,7 +25,6 @@ export const load = (async ({ parent, depends }) => {
 		.eq('user_id', user?.id)
 		.not('trips.status', 'eq', 'closed')
 		.maybeSingle();
-	console.log(joined_trips);
 	return {
 		my_trips: my_trips?.filter((trip) => new Date(trip.departure_time) > new Date()),
 		trips: trips?.filter((trip) => new Date(trip.departure_time) > new Date()),

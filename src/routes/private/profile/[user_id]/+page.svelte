@@ -39,7 +39,7 @@
 							<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
 							<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
 						</Ratings>
-						<p class="font-bold">{review.comment}</p>
+						<p class="font-bold">{review.comment || 'No comment'}</p>
 						<p class="text-sm text-gray-500">Given by: {review.profiles?.name}</p>
 						<p class="text-right text-sm text-gray-500">
 							Review Date: {new Date(review.created_at).toLocaleString()}

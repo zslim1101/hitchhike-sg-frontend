@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ProgressBar } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -123,7 +124,8 @@
 					</button>
 				</div>
 				<div class="pt-3">
-					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
+					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a
+					>
 				</div>
 			{:else if step === 2}
 				<div class="pt-10">
@@ -149,7 +151,8 @@
 					{/if}
 				</div>
 				<div class="pt-3">
-					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
+					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a
+					>
 				</div>
 			{/if}
 
@@ -181,7 +184,8 @@
 					Change Password
 				</button>
 				<div class="pt-3">
-					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a>
+					<a href="/auth" class="text-xs text-blue-500 hover:underline">Remembered your password?</a
+					>
 				</div>
 			{/if}
 
@@ -196,6 +200,9 @@
 						>Return to Login</a
 					>
 				</div>
+			{/if}
+			{#if loading}
+				<ProgressBar meter="bg-secondary-600" />
 			{/if}
 		</form>
 	</div>

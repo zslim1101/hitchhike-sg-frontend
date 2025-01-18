@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import { Ratings } from '@skeletonlabs/skeleton';
+	import { Ratings, SlideToggle } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
 	import { writable } from 'svelte/store';
 	import { LucideStar, LucideStarHalf } from 'lucide-svelte';
@@ -10,6 +10,24 @@
 	let newPassword = writable('');
 	let confirmPassword = writable('');
 	let errorMessage = writable('');
+
+	let showUpdatePassword = $state(false);
+
+	let hideContact = $state(data?.profile?.ispublic);
+
+	async function toggleContact() {
+		const { error } = await data.supabase
+			.from('profiles')
+			.update({ ispublic: hideContact })
+			.eq('id', data.user?.id)
+			.single();
+
+		if (error) {
+			alert(error.message);
+		} else {
+			invalidateAll();
+		}
+	}
 
 	async function updatePassword() {
 		if ($newPassword !== $confirmPassword) {
@@ -168,35 +186,56 @@
 				{/if}
 			</div>
 		</div>
+		<div class="mt-4 flex flex-row items-center justify-center gap-4">
+			<h2 class="text-center text-sm font-semibold">Show Contact Information on Profile</h2>
+			<SlideToggle
+				name="slide"
+				size="sm"
+				active="bg-secondary-500"
+				on:change={toggleContact}
+				bind:checked={hideContact}
+			/>
+			<p>({hideContact ? 'Show' : 'Hide'})</p>
+		</div>
 	</div>
 
 	<div class="rounded-lg bg-white p-4 shadow-lg">
-		<h2 class="text-center text-2xl font-semibold">Update Password</h2>
-		<div class="mt-4 space-y-4">
-			<div>
-				<label for="d" class="block text-sm font-medium text-gray-700">New Password</label>
-				<input
-					type="password"
-					bind:value={$newPassword}
-					class="mt-1 w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
-				/>
-			</div>
-			<div>
-				<label for="d" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-				<input
-					type="password"
-					bind:value={$confirmPassword}
-					class="mt-1 w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
-				/>
-			</div>
-			<p class="text-red-500">{$errorMessage}</p>
-			<button
-				onclick={updatePassword}
-				class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700"
-			>
-				Update Password
-			</button>
+		<div class="flex flex-row items-center justify-center gap-4">
+			<h2 class="text-center text-2xl font-semibold">Update Password</h2>
+			<SlideToggle
+				name="slide"
+				size="sm"
+				active="bg-secondary-500"
+				bind:checked={showUpdatePassword}
+			/>
 		</div>
+		{#if showUpdatePassword}
+			<div class="mt-4 space-y-4">
+				<div>
+					<label for="d" class="block text-sm font-medium text-gray-700">New Password</label>
+					<input
+						type="password"
+						bind:value={$newPassword}
+						class="mt-1 w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
+					/>
+				</div>
+				<div>
+					<label for="d" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+					<input
+						type="password"
+						bind:value={$confirmPassword}
+						class="mt-1 w-full rounded-lg border px-4 py-2 text-gray-700 outline-none focus:ring-2 focus:ring-secondary-500"
+					/>
+				</div>
+				<p class="text-red-500">{$errorMessage}</p>
+				<button
+					onclick={updatePassword}
+					class="w-full rounded-lg bg-secondary-600 py-2 font-medium text-white hover:bg-secondary-700"
+				>
+					Update Password
+				</button>
+			</div>
+		{/if}
 	</div>
 
 	<div class="rounded-lg bg-white p-4 shadow-lg">

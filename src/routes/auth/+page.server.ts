@@ -13,7 +13,7 @@ export const actions: Actions = {
 		const tg_username = formData.get('tg_username') as string;
 
 		if (!email || !password || !name) {
-			redirect(303, '/auth/error');
+			return { success: false };
 		}
 
 		const { error } = await supabase.auth.signUp({
@@ -28,15 +28,14 @@ export const actions: Actions = {
 				emailRedirectTo: 'https://www.carpool.asia/auth/confirm'
 			}
 		});
-
 		if (error) {
 			if (error.message.includes('User already registered')) {
-				return fail(400, { user_exists: 'User already exists' });
+				return { success: false, user_exists: 'User already exists' };
 			}
 
-			redirect(303, '/auth/error');
+			return { success: false, error_message: 'Fail to create' };
 		} else {
-			redirect(303, '/auth?showverify=true');
+			return { success: true };
 		}
 	},
 	login: async ({ request, locals: { supabase } }) => {
@@ -54,7 +53,7 @@ export const actions: Actions = {
 				return fail(400, { email, email_not_verified: 'Email not verified' });
 			}
 
-			redirect(303, '/auth/error');
+			return { success: false, error_message: 'Fail to Login' };
 		} else {
 			redirect(303, '/private');
 		}
