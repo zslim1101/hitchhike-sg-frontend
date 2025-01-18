@@ -3,6 +3,7 @@
 	import { storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
+	import Loading from '$lib/loading/loading.svelte';
 
 	initializeStores();
 	import '../app.css';
@@ -47,5 +48,6 @@
 		gtag('config', 'G-TP9LK57JX0');
 	</script>
 </svelte:head>
+<Loading />
 
 {@render children()}
