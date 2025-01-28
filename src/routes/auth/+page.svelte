@@ -38,11 +38,6 @@
 
 	let password = '';
 	let passwordError = '';
-	let showverify = false;
-
-	$: if (form?.success) {
-		showverify = true;
-	}
 
 	let verified = false;
 	$: if (
@@ -125,14 +120,6 @@
 					{#if form?.email_not_verified}
 						<p class="mt-4 text-center font-bold text-red-300">
 							Please verify your email before logging in
-						</p>
-					{/if}
-
-					{#if showverify}
-						<p
-							class="mt-4 rounded-md border border-gray-300 bg-slate-100 p-3 text-center font-bold text-gray-600"
-						>
-							Please verify your email to activate your account and login.
 						</p>
 					{/if}
 

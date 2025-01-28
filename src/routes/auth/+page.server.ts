@@ -35,7 +35,7 @@ export const actions: Actions = {
 
 			return { success: false, error_message: 'Fail to create' };
 		} else {
-			return { success: true };
+			redirect(303, '/auth/verify-email');
 		}
 	},
 	login: async ({ request, locals: { supabase } }) => {
