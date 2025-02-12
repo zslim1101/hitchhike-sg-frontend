@@ -27,6 +27,14 @@
 <svelte:head>
 	<title>Carpool Asia | Share your ride, Split the cost, Travel Faster</title>
 	<meta property="og:site_name" content="Carpool Asia" />
+	<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			"name": "Carpool Asia",
+			"url": "https://carpoolasia.com/"
+		}
+	</script>
 	<link rel="icon" href="/favicon.png" />
 	<meta
 		name="description"
