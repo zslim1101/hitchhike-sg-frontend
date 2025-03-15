@@ -23,8 +23,7 @@ export const load = (async ({ parent, depends }) => {
 		.from('trip_passengers')
 		.select('*,trips!inner(*)')
 		.eq('user_id', user?.id)
-		.not('trips.status', 'eq', 'closed')
-		.maybeSingle();
+		.not('trips.status', 'eq', 'closed');
 	return {
 		my_trips: my_trips?.filter((trip) => new Date(trip.departure_time) > new Date()),
 		trips: trips?.filter((trip) => new Date(trip.departure_time) > new Date()),

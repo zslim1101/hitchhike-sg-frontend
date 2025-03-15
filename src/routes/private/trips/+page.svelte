@@ -94,7 +94,17 @@
 		<ProgressBar meter="bg-secondary-600" />
 	{/if}
 	<div class="flex w-full flex-col gap-3 overflow-x-auto p-2">
-		<p class="font-bold">Current Trip</p>
+		<div class="flex flex-row justify-between">
+			<div class="flex flex-col justify-center">
+				<p class="font-bold">Current Trip</p>
+			</div>
+			<a
+				href="/private/add-trip"
+				class="mt-4 rounded bg-secondary-500 px-4 py-2 text-white transition hover:bg-secondary-600"
+			>
+				Create a Trip
+			</a>
+		</div>
 		{#if my_trips && my_trips.length > 0}
 			{#each my_trips as ride}
 				<div class="rounded-lg border border-green-700 bg-white p-4 shadow">
@@ -171,113 +181,112 @@
 					</div>
 				</div>
 			{/each}
-		{:else if data.joined_trips}
-			{#await data.supabase
-				.from('trips')
-				.select('*,destination_location:locations!trips_destination_fkey!inner(*),pickup_location:locations!trips_pickup_point_fkey!inner(*)')
-				.eq('id', data.joined_trips.trip_id)
-				.maybeSingle()}
-				<p>Loading..</p>
-			{:then { data: trip_info }}
-				{#if trip_info}
-					<div class="rounded-lg border border-green-700 bg-white p-4 shadow">
-						<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">
-							<div class="flex flex-col space-x-2 sm:flex-row">
-								<span class="text-sm font-bold">Ride Status:</span>
-								<span
-									class={'text-sm font-bold uppercase ' +
-										(trip_info.status === 'available'
-											? 'text-green-500'
-											: trip_info.status === 'chat-opened'
-												? 'text-secondary-500'
-												: 'text-red-500')}
-								>
-									{trip_info.status === 'chat-opened' ? 'Chat has started' : trip_info.status}
-								</span>
-							</div>
-							<div class="flex flex-col justify-start">
-								<div class="flex w-full flex-row justify-center bg-secondary-100">
-									<p
-										class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600"
+		{/if}
+		{#if data.joined_trips}
+			{#each data.joined_trips as joinedtrip}
+				{#await data.supabase
+					.from('trips')
+					.select('*,destination_location:locations!trips_destination_fkey!inner(*),pickup_location:locations!trips_pickup_point_fkey!inner(*)')
+					.eq('id', joinedtrip.trip_id)
+					.maybeSingle()}
+					<p>Loading..</p>
+				{:then { data: trip_info }}
+					{#if trip_info}
+						<div class="rounded-lg border border-green-700 bg-white p-4 shadow">
+							<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">
+								<div class="flex flex-col space-x-2 sm:flex-row">
+									<span class="text-sm font-bold">Ride Status:</span>
+									<span
+										class={'text-sm font-bold uppercase ' +
+											(trip_info.status === 'available'
+												? 'text-green-500'
+												: trip_info.status === 'chat-opened'
+													? 'text-secondary-500'
+													: 'text-red-500')}
 									>
-										{formatHumanReadable(trip_info?.departure_time)}
-									</p>
+										{trip_info.status === 'chat-opened' ? 'Chat has started' : trip_info.status}
+									</span>
 								</div>
-							</div>
-						</div>
-						<div class="flex flex-row items-center justify-between">
-							<!-- Pickup and Destination Points -->
-							<div class="flex items-center space-x-4">
-								<div class="text-center">
-									<div class="text-gray-500">
-										<span class="material-icons text-sm"><LucideCircleArrowDown /></span>
-									</div>
-									<div class="mx-auto my-1 h-6 w-px bg-gray-300"></div>
-									<div class="text-gray-500">
-										<span class="material-icons text-sm"><LucideMapPin /></span>
-									</div>
-								</div>
-								<div>
-									<p class="text-sm font-semibold text-gray-800">
-										{trip_info.pickup_location?.name}
-									</p>
-									<p class="text-sm text-gray-500">Pickup point</p>
-									<p class="mt-2 text-sm font-semibold text-gray-800">
-										{trip_info.destination_location?.name}
-									</p>
-									<p class="text-sm text-gray-500">Destination</p>
-								</div>
-							</div>
-
-							<!-- Time and Join Button -->
-							<div class="flex flex-col justify-between space-y-10">
-								<div></div>
-								<div class="flex flex-row justify-end space-x-2">
-									<div class="flex items-center space-x-1 text-gray-700">
-										<span class="flex flex-row gap-1 font-bold"
-											><div class="flex flex-col justify-end">
-												<p class="mt-1">{trip_info.current_passengers}/{trip_info.max_pass}</p>
-											</div>
-											<div class="flex flex-col justify-center">
-												<LucideCircleUser size="21" />
-											</div></span
+								<div class="flex flex-col justify-start">
+									<div class="flex w-full flex-row justify-center bg-secondary-100">
+										<p
+											class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600"
 										>
-										<span class="text-sm font-bold"></span>
+											{formatHumanReadable(trip_info?.departure_time)}
+										</p>
 									</div>
-									<button
-										onclick={() => {
-											goto(`/private/trips/${trip_info.id}`);
-										}}
-										class="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
-										>VIEW</button
-									>
+								</div>
+							</div>
+							<div class="flex flex-row items-center justify-between">
+								<!-- Pickup and Destination Points -->
+								<div class="flex items-center space-x-4">
+									<div class="text-center">
+										<div class="text-gray-500">
+											<span class="material-icons text-sm"><LucideCircleArrowDown /></span>
+										</div>
+										<div class="mx-auto my-1 h-6 w-px bg-gray-300"></div>
+										<div class="text-gray-500">
+											<span class="material-icons text-sm"><LucideMapPin /></span>
+										</div>
+									</div>
+									<div>
+										<p class="text-sm font-semibold text-gray-800">
+											{trip_info.pickup_location?.name}
+										</p>
+										<p class="text-sm text-gray-500">Pickup point</p>
+										<p class="mt-2 text-sm font-semibold text-gray-800">
+											{trip_info.destination_location?.name}
+										</p>
+										<p class="text-sm text-gray-500">Destination</p>
+									</div>
+								</div>
+
+								<!-- Time and Join Button -->
+								<div class="flex flex-col justify-between space-y-10">
+									<div></div>
+									<div class="flex flex-row justify-end space-x-2">
+										<div class="flex items-center space-x-1 text-gray-700">
+											<span class="flex flex-row gap-1 font-bold"
+												><div class="flex flex-col justify-end">
+													<p class="mt-1">{trip_info.current_passengers}/{trip_info.max_pass}</p>
+												</div>
+												<div class="flex flex-col justify-center">
+													<LucideCircleUser size="21" />
+												</div></span
+											>
+											<span class="text-sm font-bold"></span>
+										</div>
+										<button
+											onclick={() => {
+												goto(`/private/trips/${trip_info.id}`);
+											}}
+											class="rounded bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
+											>VIEW</button
+										>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
-				{:else}
-					<div class="flex flex-col items-center justify-center p-4 text-center">
-						<p class="text-2xl font-bold">You currently have no trips</p>
-						<p class="text-gray-500">Either join an existing trip or create a new one</p>
-						<a
-							href="/private/add-trip"
-							class="mt-4 rounded bg-secondary-500 px-4 py-2 text-white transition hover:bg-secondary-600"
-						>
-							Create a Trip
-						</a>
-					</div>
-				{/if}
-			{/await}
-		{:else}
+					{:else}
+						<div class="flex flex-col items-center justify-center p-4 text-center">
+							<p class="text-2xl font-bold">You currently have no trips</p>
+							<p class="text-gray-500">Either join an existing trip or create a new one</p>
+							<a
+								href="/private/add-trip"
+								class="mt-4 rounded bg-secondary-500 px-4 py-2 text-white transition hover:bg-secondary-600"
+							>
+								Create a Trip
+							</a>
+						</div>
+					{/if}
+				{/await}
+			{/each}
+		{/if}
+
+		{#if my_trips && my_trips.length === 0 && data.joined_trips && data.joined_trips.length === 0}
 			<div class="flex flex-col items-center justify-center p-4 text-center">
 				<p class="text-2xl font-bold">You currently have no trips</p>
 				<p class="text-gray-500">Either join an existing trip or create a new one</p>
-				<a
-					href="/private/add-trip"
-					class="mt-4 rounded bg-secondary-500 px-4 py-2 text-white transition hover:bg-secondary-600"
-				>
-					Create a Trip
-				</a>
 			</div>
 		{/if}
 		<p class="font-bold">Other Trips</p>
@@ -352,7 +361,10 @@
 
 									<div class="flex flex-col">
 										<button
-											class="mb-1 rounded border border-cyan-600 bg-white px-4 py-2 text-cyan-800 hover:bg-cyan-500 hover:text-white disabled:bg-gray-300"
+											class="mb-1 rounded border border-cyan-600 bg-white px-4 py-2 text-cyan-800 hover:bg-cyan-500 hover:text-white disabled:border-gray-300 disabled:bg-gray-300 disabled:text-white"
+											disabled={(my_trips && my_trips.length > 0) ||
+												// data.joined_trips?.trip_id === ride.id ||
+												ride.current_passengers === ride.max_pass}
 											onclick={() => {
 												goto(`/private/trips/${ride.id}`);
 											}}>VIEW</button
@@ -362,10 +374,9 @@
 												await handleUserJoin(ride);
 											}}
 											disabled={(my_trips && my_trips.length > 0) ||
-												data.joined_trips !== null ||
 												// data.joined_trips?.trip_id === ride.id ||
 												ride.current_passengers === ride.max_pass}
-											class="rounded border border-primary-600 bg-primary-600 px-4 py-2 font-bold text-white hover:bg-white hover:text-primary-600 disabled:bg-gray-300"
+											class="rounded border border-primary-600 bg-primary-600 px-4 py-2 font-bold text-white hover:bg-white hover:text-primary-600 disabled:border-gray-300 disabled:bg-gray-300 disabled:hover:text-white"
 										>
 											{ride.current_passengers === ride.max_pass ? 'FULL' : 'JOIN'}
 										</button>

@@ -141,6 +141,7 @@
 		const { error: t_pas_error } = await data.supabase
 			.from('trip_passengers')
 			.delete()
+			.eq('trip_id', ride?.id)
 			.eq('user_id', data.user.id);
 
 		if (t_pas_error) {
@@ -350,7 +351,8 @@
 		{#if !data.HAS_JOINED_TRIP && ride?.status !== 'closed' && ride?.created_by !== data.user?.id}
 			<button
 				onclick={() => handleUserJoin(data.my_trip)}
-				class="mr-2 rounded bg-primary-600 px-3 py-2 text-white hover:bg-primary-600"
+				disabled={ride?.current_passengers === ride?.max_pass}
+				class="mr-2 rounded bg-primary-600 px-3 py-2 text-white hover:bg-primary-600 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-white"
 			>
 				JOIN TRIP
 			</button>
