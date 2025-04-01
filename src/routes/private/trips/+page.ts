@@ -21,12 +21,26 @@ export const load = (async ({ parent, depends }) => {
 
 	const { data: joined_trips, error: error_joined_trips } = await supabase
 		.from('trip_passengers')
-		.select('*,trips!inner(*)')
+		.select('*,trips!inner(*,destination_location:locations!trips_destination_fkey!inner(*),pickup_location:locations!trips_pickup_point_fkey!inner(*))')
 		.eq('user_id', user?.id)
 		.not('trips.status', 'eq', 'closed');
+
+
+		const { data: messages } = await supabase
+		.from('messages_lobby')
+		.select('*')
+		.range(0,10)
+		.order('created_at', { ascending: true })
+
+		const { data: online_users } = await supabase
+		.from('online_users')
+		.select('*')
+
 	return {
 		my_trips: my_trips?.filter((trip) => new Date(trip.departure_time) > new Date()),
 		trips: trips?.filter((trip) => new Date(trip.departure_time) > new Date()),
-		joined_trips
+		joined_trips,
+		messages,
+		online_users
 	};
 }) satisfies PageLoad;

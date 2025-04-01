@@ -180,28 +180,7 @@
 									How It Works <ChevronDown size={18} />
 								</a>
 							</div>
-							<div class="mt-8 flex items-center gap-4">
-								<div class="flex -space-x-2">
-									<div
-										class="h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-yellow-200"
-									>
-										<div class="h-full w-full bg-red-100"></div>
-									</div>
-									<div
-										class="h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-yellow-200"
-									>
-										<div class="h-full w-full bg-red-200"></div>
-									</div>
-									<div
-										class="h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-yellow-200"
-									>
-										<div class="h-full w-full bg-red-300"></div>
-									</div>
-								</div>
-								<p class="z-40 text-sm">
-									Trusted by <span class="font-bold">10,000+</span> daily commuters
-								</p>
-							</div>
+							
 						</div>
 					{/if}
 				</div>

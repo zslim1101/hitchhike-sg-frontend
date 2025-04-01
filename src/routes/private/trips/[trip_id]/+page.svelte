@@ -5,6 +5,7 @@
 		LucideCircleArrowDown,
 		LucideCircleUser,
 		LucideMapPin,
+		LucideSend,
 		LucideStar,
 		LucideStarHalf
 	} from 'lucide-svelte';
@@ -319,128 +320,140 @@
 	};
 </script>
 
-<div>
+<div class="max-w-4xl mx-auto">
 	{#if isLeavingLoading}
-		<ProgressBar meter="bg-secondary-600" />
-	{/if}
-	<div class="mb-1 flex flex-row justify-between">
-		<div class="flex flex-col justify-center">
-			<a href="/private/trips" class="flex w-fit flex-row pr-3">
-				<LucideChevronLeft />
-				Return</a
-			>
+		<div class="my-4">
+			<ProgressBar meter="bg-orange-400" />
 		</div>
-		{#if (data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id) && ride?.status !== 'closed'}
-			<div class="flex flex-col items-center">
+	{/if}
+	
+	<!-- Header Section -->
+	<div class="flex justify-between items-center mb-4">
+		<a href="/private/trips" class="flex items-center text-gray-700 hover:text-orange-500 transition-colors font-medium">
+			<LucideChevronLeft class="mr-1" />
+			<span>Return</span>
+		</a>
+		
+		<div class="flex">
+			{#if (data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id) && ride?.status !== 'closed'}
 				{#if ride?.created_by === data.user?.id}
-					<button
-						onclick={DeleteTrip}
-						class="text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-						>Cancel Trip</button
-					>
-					<p class="px-1 text-xs">Others will be removed</p>
+					<div class="flex flex-col items-end">
+						<button
+							onclick={DeleteTrip}
+							class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+						>
+							Cancel Trip
+						</button>
+						<p class="text-xs text-gray-500 mt-1">Others will be removed</p>
+					</div>
 				{:else}
 					<button
 						onclick={LeaveTrip}
-						class="mr-2 text-nowrap rounded bg-red-500 px-4 py-2 text-white hover:bg-red-500"
-						>Leave Trip</button
+						class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm"
 					>
+						Leave Trip
+					</button>
 				{/if}
-			</div>
-		{/if}
-		{#if !data.HAS_JOINED_TRIP && ride?.status !== 'closed' && ride?.created_by !== data.user?.id}
-			<button
-				onclick={() => handleUserJoin(data.my_trip)}
-				disabled={ride?.current_passengers === ride?.max_pass}
-				class="mr-2 rounded bg-primary-600 px-3 py-2 text-white hover:bg-primary-600 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-white"
-			>
-				JOIN TRIP
-			</button>
-		{/if}
+			{/if}
+			
+			{#if !data.HAS_JOINED_TRIP && ride?.status !== 'closed' && ride?.created_by !== data.user?.id}
+				<button
+					onclick={() => handleUserJoin(data.my_trip)}
+					disabled={ride?.current_passengers === ride?.max_pass}
+					class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-sm disabled:bg-gray-300 disabled:shadow-none"
+				>
+					Join Trip
+				</button>
+			{/if}
+		</div>
 	</div>
 
-	<div class="container m-1 mx-auto w-full bg-white p-4 shadow">
-		<div class="mb-3 flex items-center justify-between space-x-2 text-gray-700">
-			<div class="flex flex-col space-x-2 sm:flex-row">
-				<span class="text-sm font-bold">Ride Status:</span>
-				<span
-					class={'text-sm font-bold uppercase ' +
-						(ride.status === 'available'
-							? 'text-green-500'
-							: ride.status === 'chat-opened'
-								? 'text-secondary-500'
-								: 'text-red-500')}
-				>
-					{ride.status === 'chat-opened' ? 'Chat has started' : ride.status}
-				</span>
+	<!-- Main Trip Card -->
+	<div class="bg-white rounded-lg shadow-md overflow-hidden">
+		<!-- Trip Status Header -->
+		<div class="border-b border-gray-100 p-5">
+			<div class="flex justify-between items-center">
+				<div class="flex flex-col">
+					<div class="flex items-center">
+						<span class="text-sm font-medium text-gray-600 mr-2">Status:</span>
+						<span
+							class={'px-2 py-1 text-xs font-bold uppercase rounded-full ' +
+								(ride.status === 'available'
+									? 'bg-green-100 text-green-600'
+									: ride.status === 'chat-opened'
+										? 'bg-orange-100 text-orange-600'
+										: 'bg-red-100 text-red-600')}
+						>
+							{ride.status === 'chat-opened' ? 'Chat Active' : ride.status}
+						</span>
+					</div>
+				</div>
+				
+				<div class="flex flex-col items-end">
+					<div class="bg-orange-50 rounded-full px-3 py-1">
+						<p class="text-sm font-medium text-orange-600">
+							{formatHumanReadable(ride?.departure_time)}
+						</p>
+					</div>
+				</div>
 			</div>
-			<div class="flex flex-col justify-start">
-				<div class="flex w-full flex-row justify-center bg-secondary-100">
-					<p class="w-fit rounded px-1 py-1 text-right text-xs font-bold text-secondary-600">
-						{formatHumanReadable(ride?.departure_time)}
-					</p>
+			
+			<!-- Trip Route -->
+			<div class="flex items-start mt-6 space-x-4">
+				<div class="flex flex-col items-center">
+					<div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-500">
+						<LucideCircleArrowDown size={18} />
+					</div>
+					<div class="w-0.5 h-10 bg-gray-300 my-1"></div>
+					<div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-500">
+						<LucideMapPin size={18} />
+					</div>
+				</div>
+				<div class="space-y-6">
+					<div>
+						<p class="font-medium text-gray-800">{ride?.pickup_location?.name}</p>
+						<p class="text-sm text-gray-500">Pickup point</p>
+					</div>
+					<div>
+						<p class="font-medium text-gray-800">{ride?.destination_location?.name}</p>
+						<p class="text-sm text-gray-500">Destination</p>
+					</div>
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-row items-center justify-between rounded-lg">
-			<!-- Pickup and Destination Points -->
-			<div class="flex items-center space-x-4">
-				<div class="text-center">
-					<div class="text-gray-500">
-						<span class="material-icons text-sm"><LucideCircleArrowDown /></span>
-					</div>
-					<div class="mx-auto my-1 h-6 w-px bg-gray-300"></div>
-					<div class="text-gray-500">
-						<span class="material-icons text-sm"><LucideMapPin /></span>
-					</div>
+		
+		<!-- Passenger Info -->
+		<div class="px-5 py-3 border-b border-gray-100 flex justify-end">
+			<div class="flex items-center space-x-2 bg-orange-50 px-3 py-1 rounded-full">
+				<div class="flex items-center">
+					<LucideCircleUser size={18} class="text-orange-500" />
+					<span class="font-medium text-gray-700 ml-1">{ride?.trip_passengers?.length + 1}/{ride?.max_pass}</span>
 				</div>
-				<div>
-					<p class="text-sm font-semibold text-gray-800">{ride?.pickup_location?.name}</p>
-					<p class="text-sm text-gray-500">Pickup point</p>
-					<p class="mt-2 text-sm font-semibold text-gray-800">
-						{ride?.destination_location?.name}
-					</p>
-					<p class="text-sm text-gray-500">Destination</p>
-				</div>
-			</div>
-
-			<!-- Time and Join Button -->
-		</div>
-		<div class="flex flex-col space-y-4">
-			<div class="flex flex-row justify-end space-x-2">
-				<div class="flex items-center space-x-1 text-gray-700">
-					<span class="flex flex-row gap-1 font-bold">
-						<div class="flex flex-col justify-end">
-							<p class="mt-1">{ride?.trip_passengers?.length + 1}/{ride?.max_pass}</p>
-						</div>
-						<div class="flex flex-col justify-center">
-							<LucideCircleUser size="21" />
-						</div>
-					</span>
-					<span class="text-sm font-bold">Riders</span>
-				</div>
+				<span class="text-sm text-gray-600">Riders</span>
 			</div>
 		</div>
 
 		{#if ride?.status !== 'closed'}
-			<!-- List of passengers -->
-			<div class="flex flex-col space-y-2">
-				<h2 class="text-lg font-bold">Passengers:</h2>
-				<ul class="list-none space-y-2">
-					<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
-						<div class="flex items-center justify-between gap-4">
+			<!-- Passengers List -->
+			<div class="p-5">
+				<h2 class="text-lg font-semibold text-gray-800 mb-3">Passengers</h2>
+				<ul class="space-y-3">
+					<li class="bg-gray-50 rounded-lg p-4 border border-gray-100 shadow-sm">
+						<div class="flex items-center justify-between">
 							<div>
 								{#await data.supabase
 									.from('profiles')
 									.select('*')
 									.eq('id', ride?.created_by)
 									.single()}
-									<p>Loading...</p>
+									<div class="animate-pulse h-5 w-32 bg-gray-200 rounded"></div>
 								{:then { data: owner }}
 									<a
-										class=" break-all font-semibold text-gray-800"
-										href="/private/profile/{ride?.created_by}">{owner.name} (Owner)</a
+										href="/private/profile/{ride?.created_by}"
+										class="font-medium text-gray-800 hover:text-orange-500"
 									>
+										{owner.name} <span class="text-orange-500 font-medium">(Owner)</span>
+									</a>
 								{/await}
 							</div>
 							<div>
@@ -448,59 +461,56 @@
 									.from('user_reviews')
 									.select('*')
 									.eq('review_for', ride?.created_by)}
-									<p>Loading...</p>
+									<div class="animate-pulse h-5 w-24 bg-gray-200 rounded"></div>
 								{:then { data: reviews }}
 									{#if reviews.length === 0}
-										<p class="text-gray-500">User has no reviews</p>
+										<span class="text-sm text-gray-500">No reviews yet</span>
 									{:else}
-										<p class="text-gray-500">
-											Average rating:
-											<strong
-												>{(
-													reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
-												).toFixed(1)}</strong
-											>
-										</p>
+										<div class="flex items-center">
+											<span class="text-sm text-gray-600 mr-1">Rating:</span>
+											<span class="text-orange-500 font-medium">
+												{(reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1)}
+											</span>
+										</div>
 									{/if}
 								{/await}
 							</div>
 						</div>
 					</li>
+					
 					{#each ride?.trip_passengers as passenger}
-						<li class="rounded-lg border bg-gray-50 p-4 shadow-md">
+						<li class="bg-gray-50 rounded-lg p-4 border border-gray-100 shadow-sm">
 							<div class="flex items-center justify-between">
 								<a
 									href="/private/profile/{passenger?.user_id}"
-									class="break-all font-semibold text-gray-800"
+									class="font-medium text-gray-800 hover:text-orange-500"
 								>
 									{passenger?.name}
 								</a>
-								<div class="flex flex-row items-center gap-4">
-									{#if passenger?.user_id !== data.user?.id}
+								<div class="flex items-center space-x-4">
+									{#if passenger?.user_id !== data.user?.id && ride?.created_by === data.user?.id}
 										<button
-											class="mr-2 text-nowrap rounded bg-red-500 px-3 py-2 text-xs text-white hover:bg-red-800"
+											class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
 											onclick={() => kickUser(passenger?.user_id)}
 										>
-											KICK
+											Kick
 										</button>
 									{/if}
 									{#await data.supabase
 										.from('user_reviews')
 										.select('*')
 										.eq('review_for', passenger?.user_id)}
-										<p>Loading...</p>
+										<div class="animate-pulse h-5 w-24 bg-gray-200 rounded"></div>
 									{:then { data: reviews }}
 										{#if reviews.length === 0}
-											<p class="text-gray-500">User has no reviews</p>
+											<span class="text-sm text-gray-500">No reviews yet</span>
 										{:else}
-											<p class="text-gray-500">
-												Average rating:
-												<strong
-													>{(
-														reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
-													).toFixed(1)}</strong
-												>
-											</p>
+											<div class="flex items-center">
+												<span class="text-sm text-gray-600 mr-1">Rating:</span>
+												<span class="text-orange-500 font-medium">
+													{(reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1)}
+												</span>
+											</div>
 										{/if}
 									{/await}
 								</div>
@@ -511,33 +521,35 @@
 			</div>
 
 			{#if ride?.created_by === data.user?.id}
-				<div class="mt-10 flex flex-col items-center gap-3">
+				<div class="p-5 border-t border-gray-100">
 					<button
 						onclick={MarkTripComplete}
-						class="w-full text-nowrap rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-						>Mark Trip Complete</button
+						class="w-full py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-sm font-medium"
 					>
-					<p class="text-xs text-tertiary-800">
-						Warning: This will close the chat and mark the trip as complete
+						Mark Trip Complete
+					</button>
+					<p class="text-xs text-center text-gray-500 mt-2">
+						This will close the chat and mark the trip as complete
 					</p>
 				</div>
 			{/if}
 		{/if}
 
 		{#if ride?.status === 'closed'}
-			<div class="mt-5 bg-gray-100 p-4">
-				<p class="text-2xl font-bold">Review Users:</p>
-			</div>
-			<div class=" flex flex-col space-y-2">
-				<h2 class="text-lg font-bold">Passengers:</h2>
-				<ul class="list-none space-y-6">
-					<li class="my-2">
+			<!-- Reviews Section -->
+			<div class="p-5">
+				<h2 class="text-xl font-semibold text-gray-800 mb-4">Review Users</h2>
+				<ul class="space-y-8">
+					<li>
 						{#await data.supabase.from('profiles').select('*').eq('id', ride?.created_by).single()}
-							Loading...
+							<div class="animate-pulse h-6 w-40 bg-gray-200 rounded mb-3"></div>
 						{:then { data: owner }}
-							<a class="text-lg font-bold" href="/private/profile/{ride?.created_by}"
-								>{owner?.name} (Owner)</a
+							<a 
+								class="text-lg font-medium text-gray-800 hover:text-orange-500" 
+								href="/private/profile/{ride?.created_by}"
 							>
+								{owner?.name} <span class="text-orange-500">(Owner)</span>
+							</a>
 						{/await}
 
 						{#await data.supabase
@@ -547,35 +559,28 @@
 							.eq('created_by', data.user?.id)
 							.eq('trip_id', ride?.id)
 							.single()}
-							Loading...
+							<div class="animate-pulse h-32 w-full bg-gray-200 rounded mt-2"></div>
 						{:then { data: exists }}
 							{#if exists}
-								<div
-									class="m-2 flex flex-col justify-start space-y-2 rounded-lg border border-purple-700 p-2"
-								>
-									<p class="font-bold">Your review:</p>
+								<div class="mt-3 p-4 rounded-lg border border-orange-200 bg-orange-50">
+									<p class="font-medium text-gray-700 mb-2">Your review:</p>
 									<Ratings value={exists?.rating || 0} max={5} min={1}>
-										<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
-										<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
-										<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+										<svelte:fragment slot="empty"><LucideStar class="text-gray-300" /></svelte:fragment>
+										<svelte:fragment slot="half"><LucideStarHalf class="text-yellow-400" /></svelte:fragment>
+										<svelte:fragment slot="full"><LucideStar class="text-yellow-400" /></svelte:fragment>
 									</Ratings>
-									<p>{exists.comment}</p>
-									<!-- <p class="text-sm text-gray-700">Rating: {exists.rating}</p> -->
+									<p class="mt-2 text-gray-700">{exists.comment}</p>
 								</div>
 							{:else if data.user?.id === ride?.created_by}
 								<div></div>
-								<!-- <div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
-								<p class="font-bold">You can't review yourself</p>
-							</div> -->
 							{:else}
-								<form onsubmit={handleSubmitReview} class="mt-2 flex flex-row justify-start gap-2">
-									<div
-										class="flex flex-col rounded-xl border border-primary-500 p-3 drop-shadow-xl"
-									>
-										<span class="text-md mb-2 font-semibold">Create your review:</span>
+								<form onsubmit={handleSubmitReview} class="mt-3">
+									<div class="p-4 rounded-lg border border-orange-200 bg-white shadow-sm">
+										<span class="block font-medium text-gray-700 mb-3">Create your review:</span>
 										<input type="hidden" name="ride_id" value={ride?.id} />
 										<input type="hidden" name="user_id" value={ride?.created_by} />
-										<label class="mb-2 flex flex-col">
+										
+										<div class="mb-3">
 											<input type="hidden" name="rating" bind:value={reviewvalue} />
 											<Ratings
 												bind:value={reviewvalue}
@@ -584,34 +589,42 @@
 												interactive
 												on:icon={iconClick}
 											>
-												<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
-												<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
-												<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+												<svelte:fragment slot="empty"><LucideStar class="text-gray-300" size={24} /></svelte:fragment>
+												<svelte:fragment slot="half"><LucideStarHalf class="text-yellow-400" size={24} /></svelte:fragment>
+												<svelte:fragment slot="full"><LucideStar class="text-yellow-400" size={24} /></svelte:fragment>
 											</Ratings>
-										</label>
-										<label class="mb-2 flex flex-col">
+										</div>
+										
+										<div class="mb-3">
 											<textarea
 												name="comment"
-												class="rounded border p-2"
-												placeholder="Type a review"
+												class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-300 outline-none transition"
+												placeholder="Type your review here..."
 												rows="4"
 											></textarea>
-										</label>
+										</div>
 
 										<button
 											type="submit"
-											class="rounded bg-secondary-500 px-4 py-2 text-white hover:bg-secondary-600"
+											class="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
 										>
-											Submit
+											Submit Review
 										</button>
 									</div>
 								</form>
 							{/if}
 						{/await}
 					</li>
-					{#each ride?.trip_passengers as passenger, passenger_index}
+					
+					{#each ride?.trip_passengers as passenger}
 						<li>
-							<a href="/private/profile/{passenger?.user_id}">{passenger?.name}</a>
+							<a 
+								href="/private/profile/{passenger?.user_id}" 
+								class="text-lg font-medium text-gray-800 hover:text-orange-500"
+							>
+								{passenger?.name}
+							</a>
+							
 							{#await data.supabase
 								.from('user_reviews')
 								.select('*')
@@ -619,38 +632,28 @@
 								.eq('created_by', data.user?.id)
 								.eq('trip_id', ride?.id)
 								.single()}
-								Loading...
+								<div class="animate-pulse h-32 w-full bg-gray-200 rounded mt-2"></div>
 							{:then { data: exists }}
 								{#if exists}
-									<div
-										class="m-2 flex flex-col justify-start space-y-2 rounded-lg border border-purple-700 p-2"
-									>
-										<p class="font-bold">Your review:</p>
+									<div class="mt-3 p-4 rounded-lg border border-orange-200 bg-orange-50">
+										<p class="font-medium text-gray-700 mb-2">Your review:</p>
 										<Ratings value={exists?.rating || 0} max={5} min={1}>
-											<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
-											<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
-											<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment>
+											<svelte:fragment slot="empty"><LucideStar class="text-gray-300" /></svelte:fragment>
+											<svelte:fragment slot="half"><LucideStarHalf class="text-yellow-400" /></svelte:fragment>
+											<svelte:fragment slot="full"><LucideStar class="text-yellow-400" /></svelte:fragment>
 										</Ratings>
-										<p>{exists.comment}</p>
-										<!-- <p class="text-sm text-gray-700">Rating: {exists.rating}</p> -->
+										<p class="mt-2 text-gray-700">{exists.comment}</p>
 									</div>
 								{:else if data.user?.id === passenger?.user_id}
 									<div></div>
-									<!-- <div class="m-2 flex flex-col space-y-2 rounded border bg-yellow-100 p-2">
-										<p class="font-bold">You can't review yourself</p>
-									</div> -->
 								{:else}
-									<form
-										onsubmit={handleSubmitReview}
-										class="mt-2 flex flex-row justify-start gap-2"
-									>
-										<div
-											class="flex flex-col rounded-xl border border-primary-500 p-3 drop-shadow-xl"
-										>
-											<span class="text-md mb-2 font-semibold">Create your review:</span>
+									<form onsubmit={handleSubmitReview} class="mt-3">
+										<div class="p-4 rounded-lg border border-orange-200 bg-white shadow-sm">
+											<span class="block font-medium text-gray-700 mb-3">Create your review:</span>
 											<input type="hidden" name="ride_id" value={ride?.id} />
 											<input type="hidden" name="user_id" value={passenger?.user_id} />
-											<label class="mb-2 flex flex-col">
+											
+											<div class="mb-3">
 												<input type="hidden" name="rating" bind:value={reviewvalue} />
 												<Ratings
 													bind:value={reviewvalue}
@@ -659,26 +662,26 @@
 													interactive
 													on:icon={iconClick}
 												>
-													<svelte:fragment slot="empty"><LucideStar /></svelte:fragment>
-													<svelte:fragment slot="half"><LucideStarHalf /></svelte:fragment>
-													<svelte:fragment slot="full"><LucideStar fill="yellow" /></svelte:fragment
-													>
+													<svelte:fragment slot="empty"><LucideStar class="text-gray-300" size={24} /></svelte:fragment>
+													<svelte:fragment slot="half"><LucideStarHalf class="text-yellow-400" size={24} /></svelte:fragment>
+													<svelte:fragment slot="full"><LucideStar class="text-yellow-400" size={24} /></svelte:fragment>
 												</Ratings>
-											</label>
-											<label class="mb-2 flex flex-col">
+											</div>
+											
+											<div class="mb-3">
 												<textarea
 													name="comment"
-													class="rounded border p-2"
-													placeholder="Type a review"
+													class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-300 outline-none transition"
+													placeholder="Type your review here..."
 													rows="4"
 												></textarea>
-											</label>
+											</div>
 
 											<button
 												type="submit"
-												class="rounded bg-secondary-500 px-4 py-2 text-white hover:bg-secondary-600"
+												class="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
 											>
-												Submit
+												Submit Review
 											</button>
 										</div>
 									</form>
@@ -689,66 +692,78 @@
 				</ul>
 			</div>
 		{:else if data.HAS_JOINED_TRIP || ride?.created_by === data.user?.id}
-			<div>
-				<div class="space-y-4 p-4">
-					<h2 class="text-center text-2xl font-semibold text-gray-800">Instant Chat</h2>
+			<!-- Chat Section -->
+			<div class="p-5 border-t border-gray-100">
+				<h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Instant Chat</h2>
 
-					{#if $isLoading}
-						<p class="text-center text-gray-500">Loading messages...</p>
-					{:else}
-						<!-- Message Display Area -->
-						<div
-							class="flex max-h-96 flex-col-reverse space-y-4 overflow-y-auto rounded-lg bg-gray-50 p-4 shadow-md"
-						>
-							{#each $messages as { content, created_at, user_id, name }}
-								{#if user_id === data.user?.id}
-									<!-- User Message -->
-									<div class="mb-2 self-end">
-										<p class="text-right font-semibold text-red-700">
-											<span class="text-xs text-red-300"
-												>{new Date(created_at).toLocaleTimeString()}</span
-											> You
-										</p>
-										<p
-											class="w-fit break-all rounded-md border border-red-300 bg-red-100 px-3 py-2 text-gray-800 shadow-md"
-										>
-											{content}
-										</p>
-									</div>
-								{:else}
-									<!-- Other User Message -->
-									<div class="mb-2">
-										<p class="font-semibold capitalize text-purple-700">{name}</p>
-										<p
-											class="w-fit break-all rounded-md border border-purple-300 bg-purple-100 px-3 py-2 text-gray-800 shadow-md"
-										>
-											{content}
-										</p>
-									</div>
-								{/if}
-							{/each}
-							{#if $messages.length === 0}
-								<p>Start the conversation here</p>
-							{/if}
+				{#if $isLoading}
+					<div class="flex justify-center py-8">
+						<div class="animate-pulse flex space-x-2">
+							<div class="h-3 w-3 bg-orange-300 rounded-full"></div>
+							<div class="h-3 w-3 bg-orange-300 rounded-full"></div>
+							<div class="h-3 w-3 bg-orange-300 rounded-full"></div>
 						</div>
-					{/if}
+					</div>
+				{:else}
+					<!-- Message Display Area -->
+					<div class="bg-gray-50 rounded-lg border border-gray-200 h-72 overflow-y-auto p-4 mb-4">
+						{#if $messages.length === 0}
+							<div class="flex justify-center items-center h-full">
+								<p class="text-gray-500">Start the conversation here</p>
+							</div>
+						{:else}
+							<div class="flex flex-col-reverse space-y-reverse space-y-3">
+								{#each $messages as { content, created_at, user_id, name }}
+									{#if user_id === data.user?.id}
+										<!-- User Message -->
+										<div class="flex flex-col items-end">
+											<div class="flex items-center mb-1">
+												<span class="text-xs text-gray-400 mr-2">
+													{new Date(created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+												</span>
+												<span class="text-sm font-medium text-orange-600">You</span>
+											</div>
+											<div class="max-w-xs sm:max-w-sm bg-orange-100 text-gray-800 rounded-lg rounded-tr-none px-4 py-2 border-l-4 border-orange-400 shadow-sm">
+												<p class="break-words">{content}</p>
+											</div>
+										</div>
+									{:else}
+										<!-- Other User Message -->
+										<div class="flex flex-col items-start">
+											<div class="flex items-center mb-1">
+												<span class="text-sm font-medium text-gray-700 capitalize">{name}</span>
+												<span class="text-xs text-gray-400 ml-2">
+													{new Date(created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+												</span>
+											</div>
+											<div class="max-w-xs sm:max-w-sm bg-white text-gray-800 rounded-lg rounded-tl-none px-4 py-2 border-l-4 border-gray-300 shadow-sm">
+												<p class="break-words">{content}</p>
+											</div>
+										</div>
+									{/if}
+								{/each}
+							</div>
+						{/if}
+					</div>
 
 					<!-- Message Input Area -->
-					<form onsubmit={sendMessage} class="flex flex-col space-y-2">
-						<input
-							bind:value={newMessage}
-							placeholder="Type your message..."
-							class="w-full rounded-lg border-2 border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-secondary-400"
-							type="text"
-						/>
-						<button
-							type="submit"
-							class="rounded-lg bg-primary-600 px-4 py-2 text-white hover:bg-secondary-700 disabled:cursor-not-allowed disabled:bg-gray-300"
-						>
-							Send
-						</button>
+					<form onsubmit={sendMessage} class="space-y-3">
+						<div class="relative">
+							<input
+								bind:value={newMessage}
+								placeholder="Type your message..."
+								class="w-full py-3 px-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-300 focus:border-orange-300 outline-none transition pr-12"
+								type="text"
+							/>
+							<button
+								type="submit"
+								class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors disabled:bg-gray-300"
+							>
+								<LucideSend size={16} />
+							</button>
+						</div>
 					</form>
-				</div>
+				{/if}
 			</div>
 		{/if}
 	</div>

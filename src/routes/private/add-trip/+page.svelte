@@ -1,29 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import RangeSlider from 'svelte-range-slider-pips';
-	import { Autocomplete, ProgressBar } from '@skeletonlabs/skeleton';
-	import type { AutocompleteOption } from '@skeletonlabs/skeleton';
-	import {
-		LucideCalendarClock,
-		LucideChevronLeft,
-		LucideCircleArrowDown,
-		LucideCircleUser,
-		LucideMapPin
+	import { 
+		CalendarClock, 
+		ChevronLeft, 
+		MapPinned, 
+		CircleUser, 
+		Navigation 
 	} from 'lucide-svelte';
-
-	import { Modal, getModalStore } from '@skeletonlabs/skeleton';
-	import type { ModalSettings, ModalComponent, ModalStore } from '@skeletonlabs/skeleton';
-
-	const modalStore = getModalStore();
-	const modal: ModalSettings = {
-		type: 'confirm',
-		// Data
-		title: 'Please Confirm',
-		body: 'Are you sure you wish to proceed?',
-		backdropClasses: 'bg-gray-600',
-		// TRUE if confirm pressed, FALSE if cancel pressed
-		response: (r: boolean) => console.log('response:', r)
-	};
 
 	// Form variables
 	let { data } = $props();
@@ -41,8 +25,8 @@
 	}
 
 	function convertToUTC(localTime) {
-		const date = new Date(localTime); // local time string from datetime-local input
-		return date.toISOString(); // Converts it to UTC in ISO 8601 format
+		const date = new Date(localTime);
+		return date.toISOString();
 	}
 
 	let values = $state([2, 3]);
@@ -59,6 +43,10 @@
 	let maxPassengers: number = $derived(values[1]);
 
 	let isLoading = $state(false);
+	let searchResults = $state([]);
+	let destinationResults = $state([]);
+	let isPickupFocused = $state(false);
+	let isDestinationFocused = $state(false);
 
 	// Function to handle form submission
 	async function createTrip() {
@@ -101,16 +89,7 @@
 		isLoading = false;
 	}
 
-	function onDestinationSelection(event: CustomEvent<AutocompleteOption<string>>): void {
-		destination = event.detail.label;
-		destination_id = event.detail.value;
-	}
-	function onPickupLocationSelection(event: CustomEvent<AutocompleteOption<string>>): void {
-		pickup_point = event.detail.label;
-		pickup_point_id = event.detail.value;
-	}
-
-	function translateLocations(locations: any[]): AutocompleteOption<string>[] {
+	function translateLocations(locations: any[]) {
 		return locations.map((location) => ({
 			label: location.code ? `${location.code} - ${location.name}` : location.name,
 			value: location.id.toString(),
@@ -119,7 +98,49 @@
 		}));
 	}
 
-	const locationOptions: AutocompleteOption<string>[] = translateLocations(data.locations || []);
+	const locationOptions = translateLocations(data.locations || []);
+
+	function onPickupSearch() {
+		if (!pickup_point) {
+			searchResults = [];
+			return;
+		}
+		
+		const filteredLocations = locationOptions.filter(location => 
+			location.label.toLowerCase().includes(pickup_point.toLowerCase()) ||
+			location.keywords.toLowerCase().includes(pickup_point.toLowerCase())
+		);
+		
+		searchResults = filteredLocations.slice(0, 5);
+	}
+
+	function onDestinationSearch() {
+		if (!destination) {
+			destinationResults = [];
+			return;
+		}
+		
+		const filteredLocations = locationOptions.filter(location => 
+			location.label.toLowerCase().includes(destination.toLowerCase()) ||
+			location.keywords.toLowerCase().includes(destination.toLowerCase())
+		);
+		
+		destinationResults = filteredLocations.slice(0, 5);
+	}
+
+	function selectPickupLocation(location) {
+		pickup_point = location.label;
+		pickup_point_id = location.value;
+		searchResults = [];
+		isPickupFocused = false;
+	}
+
+	function selectDestination(location) {
+		destination = location.label;
+		destination_id = location.value;
+		destinationResults = [];
+		isDestinationFocused = false;
+	}
 
 	/**
 	 * maintain a distance of 1 between the handles when
@@ -148,103 +169,155 @@
 	};
 </script>
 
-<div class="m-1">
-	<div class="mb-1">
-		<a href="/private/trips" class="flex w-fit flex-row pr-3">
-			<LucideChevronLeft />
-			Return</a
-		>
-	</div>
-	<form onsubmit={createTrip} class="rounded-lg bg-white p-6 shadow-md">
-		<h2 class="mb-2 text-xl font-semibold">Create a trip</h2>
-		<p class="mb-4 text-sm text-gray-500">
-			Enter information about the trip your are planning to make, so that others can join in and
-			split the bill
+<div class="mx-auto max-w-2xl px-4 py-8">
+	<a href="/private/trips" class="mb-6 inline-flex items-center text-gray-600 transition hover:text-amber-600">
+		<ChevronLeft size={18} class="mr-1" />
+		<span>Back to trips</span>
+	</a>
+
+	<div class="rounded-xl bg-white p-8 shadow-lg">
+		<h1 class="mb-2 text-2xl font-bold text-gray-800">Create a new trip</h1>
+		<p class="mb-6 text-gray-500">
+			Enter your trip details below so others can join and share the costs
 		</p>
 
-		<!-- Time Input -->
-		<label for="date" class="label mb-1 font-bold"></label>
-		<div class="mb-2 flex flex-row gap-2">
-			<LucideCalendarClock /><span class="font-bold">Enter pick up date and time</span>
-		</div>
-		<input
-			type="datetime-local"
-			bind:value={time}
-			class="mb-4 w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
-		/>
-
-		<!-- Pickup Location Select -->
-		<label for="pickup" class="label mt-6">
-			<div class="flex flex-row gap-2">
-				<LucideCircleArrowDown /><span class="font-bold">Enter pick up location</span>
-			</div>
-			<input
-				class="input rounded-none px-4 py-2"
-				type="search"
-				bind:value={pickup_point}
-				placeholder="Search your pick up location..."
-			/>
-			<div class="card max-h-48 w-full overflow-y-auto rounded-none p-4" tabindex="-1">
-				<Autocomplete
-					bind:input={pickup_point}
-					options={locationOptions}
-					on:selection={onPickupLocationSelection}
+		<form onsubmit={createTrip} class="space-y-8">
+			<!-- Departure Time -->
+			<div class="space-y-2">
+				<label for="departure-time" class="flex items-center gap-2 font-medium text-gray-700">
+					<CalendarClock size={18} class="text-amber-500" />
+					<span>Departure date and time</span>
+				</label>
+				<input
+					id="departure-time"
+					type="datetime-local"
+					bind:value={time}
+					class="w-full rounded-lg border border-gray-200 px-4 py-3 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
 				/>
 			</div>
-		</label>
 
-		<!-- Destination Select -->
-		<label for="dest" class="label mt-6">
-			<div class="flex flex-row gap-2">
-				<LucideMapPin /><span class="font-bold">Enter drop off location</span>
+			<!-- Pickup Location -->
+			<div class="space-y-2">
+				<label for="pickup-location" class="flex items-center gap-2 font-medium text-gray-700">
+					<Navigation size={18} class="text-amber-500" />
+					<span>Pickup location</span>
+				</label>
+				<div class="relative">
+					<input
+						id="pickup-location"
+						type="text"
+						bind:value={pickup_point}
+						oninput={onPickupSearch}
+						onfocus={() => isPickupFocused = true}
+						placeholder="Search for pickup location..."
+						class="w-full rounded-lg border border-gray-200 px-4 py-3 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+					/>
+					{#if isPickupFocused && searchResults.length > 0}
+						<div class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+							{#each searchResults as result}
+								<button
+									type="button"
+									onclick={() => selectPickupLocation(result)}
+									class="w-full px-4 py-3 text-left hover:bg-amber-50"
+								>
+									{result.label}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			</div>
-			<input
-				class="input rounded-none px-4 py-2"
-				type="search"
-				bind:value={destination}
-				placeholder="Search your drop off location..."
-			/>
-			<div class="card max-h-48 w-full overflow-y-auto rounded-none p-4" tabindex="-1">
-				<Autocomplete
-					bind:input={destination}
-					options={locationOptions}
-					on:selection={onDestinationSelection}
-				/>
-			</div>
-		</label>
-		<div class="mt-6 font-bold">
-			<div class="flex flex-row gap-2">
-				<LucideCircleUser /><span class="font-bold"
-					>How many people do you want to carpool with</span
-				>
-			</div>
-			<RangeSlider
-				range
-				pushy
-				pips
-				all="label"
-				bind:values
-				on:change={slide}
-				on:stop={stop}
-				{min}
-				{max}
-			/>
-		</div>
-		<p class="mb-4 text-xs text-gray-500">
-			Choose the minimum and maximum amount of users for shared trip
-		</p>
 
-		<!-- Submit Button -->
-		<div class="flex flex-col gap-1">
+			<!-- Destination -->
+			<div class="space-y-2">
+				<label for="destination" class="flex items-center gap-2 font-medium text-gray-700">
+					<MapPinned size={18} class="text-amber-500" />
+					<span>Destination</span>
+				</label>
+				<div class="relative">
+					<input
+						id="destination"
+						type="text"
+						bind:value={destination}
+						oninput={onDestinationSearch}
+						onfocus={() => isDestinationFocused = true}
+						placeholder="Search for destination..."
+						class="w-full rounded-lg border border-gray-200 px-4 py-3 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+					/>
+					{#if isDestinationFocused && destinationResults.length > 0}
+						<div class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+							{#each destinationResults as result}
+								<button
+									type="button"
+									onclick={() => selectDestination(result)}
+									class="w-full px-4 py-3 text-left hover:bg-amber-50"
+								>
+									{result.label}
+								</button>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			</div>
+
+			<!-- Passenger Range -->
+			<div class="space-y-2">
+				<label class="flex items-center gap-2 font-medium text-gray-700">
+					<CircleUser size={18} class="text-amber-500" />
+					<span>Passengers ({minPassengers} - {maxPassengers})</span>
+				</label>
+				<div class="py-4">
+					<RangeSlider
+						range
+						pushy
+						pips
+						all="label"
+						bind:values
+						on:change={slide}
+						on:stop={stop}
+						{min}
+						{max}
+						pipstep={1}
+						first="label"
+						last="label"
+						float
+						hoverable
+					/>
+				</div>
+				<p class="text-xs text-gray-500">
+					Select minimum and maximum passengers for your carpool
+				</p>
+			</div>
+
+			<!-- Submit Button -->
 			<button
 				type="submit"
-				class="mt-10 w-full rounded bg-gray-800 py-2 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+				disabled={isLoading}
+				class="w-full rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 py-3 font-medium text-white shadow-md transition hover:from-amber-600 hover:to-yellow-500 focus:outline-none focus:ring-2 focus:ring-amber-300 disabled:opacity-70"
 			>
-				Submit
+				{isLoading ? 'Creating trip...' : 'Create Trip'}
 			</button>
+			
 			{#if isLoading}
-				<ProgressBar meter="bg-secondary-600" />
+				<div class="h-1 w-full overflow-hidden rounded-full bg-gray-100">
+					<div class="h-full animate-pulse rounded-full bg-amber-400"></div>
+				</div>
 			{/if}
-		</div>
-	</form>
+		</form>
+	</div>
 </div>
+
+<style>
+	:global(.slider-orange) {
+		--range-handle: theme('colors.amber.500');
+		--range-handle-focus: theme('colors.amber.600');
+		--range-handle-inactive: theme('colors.amber.300');
+		--range-handle-border: theme('colors.amber.600');
+		--range-float-text: theme('colors.white');
+		--range-float-bg: theme('colors.amber.500');
+		--range-float-border: theme('colors.amber.600');
+		--range-track: theme('colors.gray.100');
+		--range-track-border: theme('colors.gray.300');
+		--range-track-progress: theme('colors.amber.100');
+	}
+</style>
