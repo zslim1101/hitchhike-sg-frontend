@@ -1,59 +1,20 @@
-<script>
-	import { navigating } from '$app/stores';
+<script lang="ts">
+	import { slide } from "svelte/transition"
+	import { expoOut } from "svelte/easing"
+	import { navigating } from "$app/stores";
 
-	let loading = 'no';
-
-	$: {
-		if ($navigating) {
-			loading = 'yes';
-		} else {
-			loading = 'closing';
-			setTimeout(() => {
-				loading = 'no';
-			}, 300);
-		}
-	}
-
-	let percentage = 0;
-
-	$: {
-		if (loading === 'closing') {
-			percentage = 1;
-		}
-	}
-
-	function load(_node) {
-		let timeout;
-		const handle = () => {
-			if (percentage < 0.7) {
-				percentage += Math.random() * 0.3;
-				timeout = setTimeout(handle, Math.random() * 1000);
-			}
-		};
-		handle();
-		return {
-			destroy() {
-				clearTimeout(timeout);
-				percentage = 0;
-			}
-		};
-	}
 </script>
 
-{#if loading !== 'no'}
-	<div use:load style:--percentage={percentage} />
+{#if $navigating}
+  <!-- 
+    Loading animation for next page since svelte doesn't show any indicator. 
+     - delay 100ms because most page loads are instant, and we don't want to flash 
+     - long 12s duration because we don't actually know how long it will take
+     - exponential easing so fast loads (>100ms and <1s) still see enough progress,
+       while slow networks see it moving for a full 12 seconds
+  -->
+  <div
+    class="fixed w-full top-0 right-0 left-0 h-1 z-[99999] bg-orange-500"
+    in:slide={{ delay: 100, duration: 12000, axis: "x", easing: expoOut }}
+  ></div>
 {/if}
-
-<style>
-	div {
-		position: fixed;
-		inset: 0;
-		bottom: auto;
-		height: var(--loader-height, 0.5vh);
-		transform-origin: left;
-		transform: scaleX(calc(var(--percentage) * 100%));
-		background-color: #ff2146;
-		transition: transform 250ms;
-		z-index: 9999;
-	}
-</style>
